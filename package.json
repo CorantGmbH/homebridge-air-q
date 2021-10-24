@@ -24,7 +24,15 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "air-q-plugin","air-Q","air","airQ","airq","air-q","air q","air Q"
+    "homebridge-plugin",
+    "air-q-plugin",
+    "air-Q",
+    "air",
+    "airQ",
+    "airq",
+    "air-q",
+    "air q",
+    "air Q"
   ],
   "dependencies": {},
   "devDependencies": {
