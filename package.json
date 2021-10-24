@@ -1,7 +1,7 @@
 {
   "private": true,
   "displayName": "air-Q",
-  "name": "air-q-plugin",
+  "name": "homebridge-air-q",
   "version": "1.0.0",
   "description": "This plugin provides support for the air-Q air analyzer.",
   "license": "Apache-2.0",
@@ -24,7 +24,7 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "air-q-plugin","air-Q"
+    "air-q-plugin","air-Q","air","airQ","airq","air-q","air q","air Q"
   ],
   "dependencies": {},
   "devDependencies": {
