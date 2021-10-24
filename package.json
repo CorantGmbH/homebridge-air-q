@@ -1,16 +1,16 @@
 {
   "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
+  "displayName": "air-Q",
+  "name": "air-q-plugin",
   "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "description": "This plugin provides support for the air-Q air analyzer.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/CorantGmbH/homebridge-plugin-airQ"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/CorantGmbH/homebridge-plugin-airQ"
   },
   "engines": {
     "node": ">=14.18.1",
@@ -24,7 +24,7 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
-    "homebridge-plugin"
+    "air-q-plugin","air-Q"
   ],
   "dependencies": {},
   "devDependencies": {
