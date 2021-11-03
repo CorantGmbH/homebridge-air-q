@@ -1,7 +1,8 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "AirQ",
   "pluginType": "platform",
   "singular": true,
+  "headerDisplay": "Homebridge plugin for air-Q",
   "schema": {
     "type": "object",
     "properties": {
@@ -9,7 +10,42 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "air-Q",
+        "description": "Plugin name as displayed in the homebridge log."
+      },
+      "password": {
+        "title": "Password of this air-Q",
+        "type": "string",
+        "required": true,
+        "minLength": 8,
+        "description": "Necessary to decrypt the data from air-Q."
+      },
+      "serialNumber": {
+        "title": "Serial number (first five digits)",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "minLength": 5,
+        "description": "Will be used to retrieve the IP of the air-Q device by MDNS."
+      },
+      "ipAddress": {
+        "title": "IPv4 address (optional)",
+        "type": "string",
+        "required": false,
+        "format": "ipv4",
+        "description": "Will be used instead of MDNS detection, if given."
+      },
+      "liveValues": {
+        "title": "Expose live values",
+        "type": "boolean",
+        "default": true,
+        "description": "All sensors of air-Q will be available in HomeKit with their live values."
+      },
+      "averages": {
+        "title": "Expose averaged values",
+        "type": "boolean",
+        "default": false,
+        "description": "All sensors of air-Q will be available in HomeKit with their average values."
       }
     }
   }
