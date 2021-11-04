@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "AirQ",
+  "pluginAlias": "AirQHomebridgePlugin",
   "pluginType": "platform",
   "singular": true,
   "headerDisplay": "Homebridge plugin for air-Q",

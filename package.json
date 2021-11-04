@@ -10,7 +10,7 @@
     "url": "git://github.com/CorantGmbH/homebridge-plugin-airQ"
   },
   "bugs": {
-    "url": "https://github.com/CorantGmbH/homebridge-plugin-airQ"
+    "url": "https://github.com/CorantGmbH/homebridge-air-q"
   },
   "engines": {
     "node": ">=14.18.1",
