@@ -32,23 +32,7 @@ export class AirQPlatformAccessory {
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
-
-    // set the service name, this is what is displayed as the default name on the Home app
-    // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
-
-    // each service must implement at-minimum the "required characteristics" for the given service type
-    // see https://developers.homebridge.io/#/service/Lightbulb
-
-    // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
-
-    // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+    //this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
 
     /**
      * Creating multiple services of the same type.
@@ -61,96 +45,135 @@ export class AirQPlatformAccessory {
      * can use the same sub type id.)
      */
 
-    // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    // add temperature sensor
+    const temperatureSensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+      this.accessory.addService(this.platform.Service.TemperatureSensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-1');
+    // bind temperature sensor service to read function
+    temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+      .onGet(this.getTemperature.bind(this));
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
-
-    /**
-     * Updating characteristics values asynchronously.
-     *
-     * Example showing how to update the state of a Characteristic asynchronously instead
-     * of using the `on('get')` handlers.
-     * Here we change update the motion sensor trigger states on and off every 10 seconds
-     * the `updateCharacteristic` method.
-     *
-     */
-    let motionDetected = false;
-    setInterval(() => {
-      // EXAMPLE - inverse the trigger
-      motionDetected = !motionDetected;
-
-      // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
-
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
+    // add humidty sensor
+    const humidtySensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+      this.accessory.addService(this.platform.Service.HumiditySensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-2');
+    // bind temperature sensor service to read function
+    humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+      .onGet(this.getHumidity.bind(this));
 
     // add CO2 sensor
-    const co2SensorService = this.accessory.getService('CO\ :sub:`2`') ||
-      this.accessory.addService(this.platform.Service.CarbonDioxideSensor, 'CO\ :sub:`2`', 'YourUniqueIdentifier-3');
+    const co2SensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+      this.accessory.addService(this.platform.Service.CarbonDioxideSensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-3');
     // bind CO2 sensor service to read function
     co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideLevel)
-      .onGet(this.readCO2.bind(this));
+      .onGet(this.getCO2level.bind(this));
+    co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideDetected)
+      .onGet(this.getCO2detected.bind(this));
+
+    // add CO sensor
+    const coSensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+      this.accessory.addService(this.platform.Service.CarbonMonoxideSensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-4');
+    // bind CO2 sensor service to read function
+    coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideLevel)
+      .onGet(this.getCOlevel.bind(this));
+    coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
+      .onGet(this.getCOdetected.bind(this));
+
+    // add air quality sensor for not individually possible values
+    const airQualitySensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-5');
+    // bind air quality sensor characteristic
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(this.getAirQuality.bind(this));
+    // bind air quality sensor service to NO2 sensor
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+      .onGet(this.getNO2level.bind(this));
+    // bind air quality sensor service to O3 sensor
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+      .onGet(this.getO3level.bind(this));
+    // bind air quality sensor service to SO2 sensor
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+      .onGet(this.getSO2level.bind(this));
+    // bind air quality sensor service to VOC sensor
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+      .onGet(this.getVOClevel.bind(this));
+    // bind air quality sensor service to PM2.5 sensor
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
+      .onGet(this.getPM2_5level.bind(this));
   }
 
-  async readCO2(value: CharacteristicValue) {
-    this.platform.log.debug('CO2 value requested');
-
-    const currentValue = 543;
-
+  async getTemperature(value: CharacteristicValue) {
+    this.platform.log.debug('getTemperature requested');
+    const currentValue = 22.3;
     return currentValue;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
-   */
-  async setOn(value: CharacteristicValue) {
-    // implement your own code to turn your device on/off
-    this.exampleStates.On = value as boolean;
-
-    this.platform.log.debug('Set Characteristic On ->', value);
+  async getHumidity(value: CharacteristicValue) {
+    this.platform.log.debug('getHumidity requested');
+    const currentValue = 56.3;
+    return currentValue;
   }
 
-  /**
-   * Handle the "GET" requests from HomeKit
-   * These are sent when HomeKit wants to know the current state of the accessory, for example, checking if a Light bulb is on.
-   *
-   * GET requests should return as fast as possbile. A long delay here will result in
-   * HomeKit being unresponsive and a bad user experience in general.
-   *
-   * If your device takes time to respond you should update the status of your device
-   * asynchronously instead using the `updateCharacteristic` method instead.
-
-   * @example
-   * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
-   */
-  async getOn(): Promise<CharacteristicValue> {
-    // implement your own code to check if the device is on
-    const isOn = this.exampleStates.On;
-
-    this.platform.log.debug('Get Characteristic On ->', isOn);
-
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-
-    return isOn;
+  async getCO2level(value: CharacteristicValue) {
+    this.platform.log.debug('getCO2level requested');
+    const currentValue = 543;
+    return currentValue;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, changing the Brightness
-   */
-  async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
-    this.exampleStates.Brightness = value as number;
-
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+  async getCO2detected(value: CharacteristicValue) {
+    this.platform.log.debug('getCO2detected requested');
+    const currentValue = this.Characteristic.CarbonDioxideDetected.CO2_LEVELS_NORMAL;
+    return currentValue;
   }
 
-}
+  async getCOlevel(value: CharacteristicValue) {
+    this.platform.log.debug('getCOlevel requested');
+    const currentValue = 1.8;
+    return currentValue;
+  }
+
+  async getCOdetected(value: CharacteristicValue) {
+    this.platform.log.debug('getCOdetected requested');
+    const currentValue = this.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL;
+    return currentValue;
+  }
+
+  async getAirQuality(value: CharacteristicValue) {
+    this.platform.log.debug('getAirQuality requested');
+    const currentValue = this.Characteristic.AirQuality.GOOD;
+    return currentValue;
+  }
+
+  async getNO2level(value: CharacteristicValue) {
+    this.platform.log.debug('getNO2level requested');
+    const currentValue = 43.5;
+    return currentValue;
+  }
+
+  async getO3level(value: CharacteristicValue) {
+    this.platform.log.debug('getO3level requested');
+    const currentValue = 38.3;
+    return currentValue;
+  }
+
+  async getSO2level(value: CharacteristicValue) {
+    this.platform.log.debug('getSO2level requested');
+    const currentValue = 127.7;
+    return currentValue;
+  }
+
+  async getVOClevel(value: CharacteristicValue) {
+    this.platform.log.debug('getVOClevel requested');
+    const currentValue = 678.3;
+    return currentValue;
+  }
+
+  async getPM2_5level(value: CharacteristicValue) {
+    this.platform.log.debug('getPM2_5level requested');
+    const currentValue = 3.2;
+    return currentValue;
+  }
+
+  async getPM10level(value: CharacteristicValue) {
+    this.platform.log.debug('getPM10level requested');
+    const currentValue = 7.3;
+    return currentValue;
+  }

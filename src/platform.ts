@@ -57,11 +57,11 @@ export class AirQPlatform implements DynamicPlatformPlugin {
     const exampleDevices = [
       {
         exampleUniqueId: 'ABCD',
-        exampleDisplayName: 'Bedroom',
+        exampleDisplayName: 'Schlafzimmer',
       },
       {
         exampleUniqueId: 'EFGH',
-        exampleDisplayName: 'Kitchen',
+        exampleDisplayName: 'Wohnzimmer',
       },
     ];
 
