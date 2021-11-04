@@ -119,11 +119,27 @@ export class AirQPlatformAccessory {
     // bind performance air quality sensor service to status function
     performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
+
+    // add smoke detector
+    const smokeSensorService = this.accessory.getService("Rauch-Sensor") ||
+      this.accessory.addService(this.platform.Service.SmokeSensor, "Rauch-Sensor", 'YourUniqueIdentifier-18');
+    // bind CO sensor service to read function
+    smokeSensorService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
+      .onGet(this.getSmokeDetected.bind(this));
+    // bind CO sensor service to status function
+    smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
   }
 
   async getStatus(value: CharacteristicValue) {
     this.platform.log.debug('getStatus requested');
     const currentValue = true;
+    return currentValue;
+  }
+
+  async getSmokeDetected(value: CharacteristicValue) {
+    this.platform.log.debug('getSmokeDetected requested');
+    const currentValue = 1;
     return currentValue;
   }
 
