@@ -26,8 +26,8 @@ export class AirQPlatformAccessory {
 
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Corant GmbH')
+      .setCharacteristic(this.platform.Characteristic.Model, 'air-Q')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
@@ -89,6 +89,21 @@ export class AirQPlatformAccessory {
       this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
       this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
     }, 10000);
+
+    // add CO2 sensor
+    const co2SensorService = this.accessory.getService('CO\ :sub:`2`') ||
+      this.accessory.addService(this.platform.Service.CarbonDioxideSensor, 'CO\ :sub:`2`', 'YourUniqueIdentifier-3');
+    // bind CO2 sensor service to read function
+    this.co2SensorService.getCharacteristic(this.platform.Characteristic.On)
+      .onSet(this.readCO2.bind(this));
+  }
+
+  async readCO2(value: CharacteristicValue) {
+    this.platform.log.debug('CO2 value requested');
+
+    const currentValue = 543;
+
+    return currentValue;
   }
 
   /**
