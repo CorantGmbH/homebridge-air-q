@@ -1,11 +1,11 @@
 import { API } from 'homebridge';
 
 import { PLATFORM_NAME } from './settings';
-import { AirQ } from './platform';
+import { AirQPlatform } from './platform';
 
 /**
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, AirQ);
+  api.registerPlatform(PLATFORM_NAME, AirQPlatform);
 };
