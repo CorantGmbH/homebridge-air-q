@@ -43,21 +43,21 @@ export class AirQPlatformAccessory {
 
     // add temperature sensor
     this.service = this.accessory.getService("Temperatur") ||
-      this.accessory.addService(this.platform.Service.TemperatureSensor, "Temperatur", 'YourUniqueIdentifier-1');
+      this.accessory.addService(this.platform.Service.TemperatureSensor, "Temperatur", 'YourUniqueIdentifier-10');
     // bind temperature sensor service to read function
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
 
     // add humidty sensor
     const humidtySensorService = this.accessory.getService("Luftfeuchtigkeit") ||
-      this.accessory.addService(this.platform.Service.HumiditySensor, "Luftfeuchtigkeit", 'YourUniqueIdentifier-2');
+      this.accessory.addService(this.platform.Service.HumiditySensor, "Luftfeuchtigkeit", 'YourUniqueIdentifier-11');
     // bind temperature sensor service to read function
     humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
       .onGet(this.getHumidity.bind(this));
 
     // add CO2 sensor
     const co2SensorService = this.accessory.getService("CO2 Sensor") ||
-      this.accessory.addService(this.platform.Service.CarbonDioxideSensor, "CO2 Sensor", 'YourUniqueIdentifier-3');
+      this.accessory.addService(this.platform.Service.CarbonDioxideSensor, "CO2 Sensor", 'YourUniqueIdentifier-12');
     // bind CO2 sensor service to read function
     co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideLevel)
       .onGet(this.getCO2level.bind(this));
@@ -66,7 +66,7 @@ export class AirQPlatformAccessory {
 
     // add CO sensor
     const coSensorService = this.accessory.getService("CO Sensor") ||
-      this.accessory.addService(this.platform.Service.CarbonMonoxideSensor, "CO Sensor", 'YourUniqueIdentifier-4');
+      this.accessory.addService(this.platform.Service.CarbonMonoxideSensor, "CO Sensor", 'YourUniqueIdentifier-13');
     // bind CO2 sensor service to read function
     coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideLevel)
       .onGet(this.getCOlevel.bind(this));
@@ -75,7 +75,7 @@ export class AirQPlatformAccessory {
 
     // add air quality sensor for not individually possible values
     const airQualitySensorService = this.accessory.getService("Airquality Sensor") ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor, "Airquality Sensor", 'YourUniqueIdentifier-5');
+      this.accessory.addService(this.platform.Service.AirQualitySensor, "Airquality Sensor", 'YourUniqueIdentifier-14');
     // bind air quality sensor characteristic
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getAirQuality.bind(this));
