@@ -94,8 +94,8 @@ export class AirQPlatformAccessory {
     const co2SensorService = this.accessory.getService('CO\ :sub:`2`') ||
       this.accessory.addService(this.platform.Service.CarbonDioxideSensor, 'CO\ :sub:`2`', 'YourUniqueIdentifier-3');
     // bind CO2 sensor service to read function
-    this.co2SensorService.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.readCO2.bind(this));
+    co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideLevel)
+      .onGet(this.readCO2.bind(this));
   }
 
   async readCO2(value: CharacteristicValue) {
