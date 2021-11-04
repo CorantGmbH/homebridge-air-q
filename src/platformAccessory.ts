@@ -87,7 +87,7 @@ export class AirQPlatformAccessory {
 
     // add health air quality sensor for not individually possible values
     const airQualitySensorService = this.accessory.getService("Gesundheit") ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor, "Gesundheit", 'YourUniqueIdentifier-14');
+      this.accessory.addService(this.platform.Service.AirQualitySensor, "Gesundheit", 'YourUniqueIdentifier-16');
     // bind air quality sensor characteristic
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getHealth.bind(this));
