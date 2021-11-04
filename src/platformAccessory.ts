@@ -111,8 +111,8 @@ export class AirQPlatformAccessory {
       .onGet(this.getStatus.bind(this));
 
     // add performance air quality sensor
-    const performanceSensorService = this.accessory.getService("Leistungsfähigkeit") ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor, "Leistungsfähigkeit", 'YourUniqueIdentifier-15');
+    const performanceSensorService = this.accessory.getService("Leistung") ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, "Leistung", 'YourUniqueIdentifier-17');
     // bind performance air quality sensor characteristic
     performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getPerformance.bind(this));
