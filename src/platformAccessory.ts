@@ -177,3 +177,4 @@ export class AirQPlatformAccessory {
     const currentValue = 7.3;
     return currentValue;
   }
+}
