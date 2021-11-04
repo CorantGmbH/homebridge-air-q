@@ -85,12 +85,12 @@ export class AirQPlatformAccessory {
     coSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
 
-    // add air quality sensor for not individually possible values
-    const airQualitySensorService = this.accessory.getService("Airquality Sensor") ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor, "Airquality Sensor", 'YourUniqueIdentifier-14');
+    // add health air quality sensor for not individually possible values
+    const airQualitySensorService = this.accessory.getService("Gesundheit") ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, "Gesundheit", 'YourUniqueIdentifier-14');
     // bind air quality sensor characteristic
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-      .onGet(this.getAirQuality.bind(this));
+      .onGet(this.getHealth.bind(this));
     // bind air quality sensor service to NO2 sensor
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
       .onGet(this.getNO2level.bind(this));
@@ -108,6 +108,16 @@ export class AirQPlatformAccessory {
       .onGet(this.getPM2_5level.bind(this));
     // bind air quality sensor service to status function
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
+
+    // add performance air quality sensor
+    const performanceSensorService = this.accessory.getService("Leistungsfähigkeit") ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor, "Leistungsfähigkeit", 'YourUniqueIdentifier-15');
+    // bind performance air quality sensor characteristic
+    performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(this.getPerformance.bind(this));
+    // bind performance air quality sensor service to status function
+    performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
   }
 
@@ -153,9 +163,15 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
-  async getAirQuality(value: CharacteristicValue) {
+  async getHealth(value: CharacteristicValue) {
     this.platform.log.debug('getAirQuality requested');
     const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    return currentValue;
+  }
+
+  async getPerformance(value: CharacteristicValue) {
+    this.platform.log.debug('getAirQuality requested');
+    const currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
     return currentValue;
   }
 
