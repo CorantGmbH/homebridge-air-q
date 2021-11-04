@@ -30,10 +30,6 @@ export class AirQPlatformAccessory {
       .setCharacteristic(this.platform.Characteristic.Model, 'air-Q')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
-    // get the LightBulb service if it exists, otherwise create a new LightBulb service
-    // you can create multiple services for each accessory
-    //this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
-
     /**
      * Creating multiple services of the same type.
      *
@@ -46,10 +42,10 @@ export class AirQPlatformAccessory {
      */
 
     // add temperature sensor
-    const temperatureSensorService = this.accessory.getService(this.platform.Characteristic.Name) ||
+    this.service = this.accessory.getService(this.platform.Characteristic.Name) ||
       this.accessory.addService(this.platform.Service.TemperatureSensor, this.platform.Characteristic.Name, 'YourUniqueIdentifier-1');
     // bind temperature sensor service to read function
-    temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
 
     // add humidty sensor
