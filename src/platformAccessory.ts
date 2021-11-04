@@ -47,13 +47,19 @@ export class AirQPlatformAccessory {
     // bind temperature sensor service to read function
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
+    // bind temperature sensor service to status function
+    this.service.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
 
     // add humidty sensor
     const humidtySensorService = this.accessory.getService("Luftfeuchtigkeit") ||
       this.accessory.addService(this.platform.Service.HumiditySensor, "Luftfeuchtigkeit", 'YourUniqueIdentifier-11');
-    // bind temperature sensor service to read function
+    // bind humidity sensor service to read function
     humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
       .onGet(this.getHumidity.bind(this));
+    // bind temperature sensor service to status function
+    humidtySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
 
     // add CO2 sensor
     const co2SensorService = this.accessory.getService("CO2 Sensor") ||
@@ -63,15 +69,21 @@ export class AirQPlatformAccessory {
       .onGet(this.getCO2level.bind(this));
     co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideDetected)
       .onGet(this.getCO2detected.bind(this));
+    // bind CO2 sensor service to status function
+    co2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
 
     // add CO sensor
     const coSensorService = this.accessory.getService("CO Sensor") ||
       this.accessory.addService(this.platform.Service.CarbonMonoxideSensor, "CO Sensor", 'YourUniqueIdentifier-13');
-    // bind CO2 sensor service to read function
+    // bind CO sensor service to read function
     coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideLevel)
       .onGet(this.getCOlevel.bind(this));
     coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
       .onGet(this.getCOdetected.bind(this));
+    // bind CO sensor service to status function
+    coSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
 
     // add air quality sensor for not individually possible values
     const airQualitySensorService = this.accessory.getService("Airquality Sensor") ||
@@ -94,6 +106,15 @@ export class AirQPlatformAccessory {
     // bind air quality sensor service to PM2.5 sensor
     airQualitySensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
       .onGet(this.getPM2_5level.bind(this));
+    // bind air quality sensor service to status function
+    airQualitySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
+  }
+
+  async getStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getStatus requested');
+    const currentValue = true;
+    return currentValue;
   }
 
   async getTemperature(value: CharacteristicValue) {
