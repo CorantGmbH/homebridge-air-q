@@ -119,7 +119,7 @@ export declare class PressureSensor extends Service {
     constructor(displayName?: string, subtype?: string);
 }
 
-class PressureLevel extends Characteristic {
+export declare class PressureLevel extends Characteristic {
 		constructor(accessory) {
 			super('Atmospheric Pressure', 'MyUniqueIdentifier-1');
 			this.setProps({
