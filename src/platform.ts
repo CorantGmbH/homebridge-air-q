@@ -119,19 +119,18 @@ export declare class PressureSensor extends Service {
     constructor(displayName?: string, subtype?: string);
 }
 
-export declare class PressureLevel extends Characteristic {
-		constructor(accessory) {
-			super('Atmospheric Pressure', 'MyUniqueIdentifier-1');
-			this.setProps({
-				format: Characteristic.Formats.DATA,
-				unit: "hPA",
-				minValue: 0,
-				maxValue: 2000,
-				minStep: 0.1,
-				perms: [
-					Characteristic.Perms.READ,
-					Characteristic.Perms.NOTIFY
-				]
-			});
-		}
-	}
+module.exports = function (homebridge) {
+    PressureLevel = function () {
+      Characteristic.call(this, 'Atmospheric Pressure', 'MyUniqueIdentifier-1');
+      this.setProps({
+          format: Characteristic.Formats.DATA,
+          unit: "hPa",
+          maxValue: 1500,
+          minValue: 500,
+          minStep: 0.01,
+          perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+      });
+      this.value = this.getDefaultValue();
+  };
+  inherits(EveAirPressure, Characteristic);
+}
