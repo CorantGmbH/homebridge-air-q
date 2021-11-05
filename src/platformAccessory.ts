@@ -129,6 +129,16 @@ export class AirQPlatformAccessory {
     // bind CO sensor service to status function
     smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
+
+    // add pressure sensor
+    pressureService = this.accessory.getService("Luftdruck") ||
+      this.accessory.addService(this.platform.Service.PressureSensor, "Luftdruck", 'YourUniqueIdentifier-19');
+    // bind pressure sensor service to read function
+    pressureService.getCharacteristic(this.platform.Characteristic.PressureLevel)
+      .onGet(this.getPressure.bind(this));
+    // bind pressure sensor service to status function
+    pressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getStatus.bind(this));
   }
 
   async getStatus(value: CharacteristicValue) {
@@ -224,6 +234,12 @@ export class AirQPlatformAccessory {
   async getPM10level(value: CharacteristicValue) {
     this.platform.log.debug('getPM10level requested');
     const currentValue = 7.3;
+    return currentValue;
+  }
+
+  async getPressure(value: CharacteristicValue) {
+    this.platform.log.debug('getPressure requested');
+    const currentValue = 998.3;
     return currentValue;
   }
 }

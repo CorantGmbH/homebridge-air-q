@@ -110,3 +110,28 @@ export class AirQPlatform implements DynamicPlatformPlugin {
     }
   }
 }
+
+/**
+ * Service "Pressure Sensor"
+ */
+export declare class PressureSensor extends Service {
+    static readonly UUID: string;
+    constructor(displayName?: string, subtype?: string);
+}
+
+class PressureLevel extends Characteristic {
+		constructor(accessory) {
+			super('Atmospheric Pressure', 'MyUniqueIdentifier-1');
+			this.setProps({
+				format: Characteristic.Formats.DATA,
+				unit: "hPA",
+				minValue: 0,
+				maxValue: 2000,
+				minStep: 0.1,
+				perms: [
+					Characteristic.Perms.READ,
+					Characteristic.Perms.NOTIFY
+				]
+			});
+		}
+	}
