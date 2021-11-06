@@ -1,5 +1,6 @@
-//https://github.com/homebridge/homebridge/issues/2740
-
+/** As mentioned in https://github.com/homebridge/homebridge/issues/2740
+* Not used, however, as it isn't supported by HomeKit
+**/
 import { Characteristic, Service, Perms, Formats } from 'hap-nodejs';
 
 export class AirPressureLevel extends Characteristic {

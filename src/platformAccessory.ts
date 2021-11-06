@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { AirQPlatform } from './platform';
 
-import { AirPressureService, AirPressureLevel } from './customService'
+//import { AirPressureService, AirPressureLevel } from './customService'
 
 /**
  * Platform Accessory
@@ -57,7 +57,7 @@ export class AirQPlatformAccessory {
 
     // add temperature sensor
     this.temperatureSensorService = this.accessory.getService('Temperature') ||
-      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-22');
+      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-23');
     // bind temperature sensor service to read function
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
@@ -150,15 +150,14 @@ export class AirQPlatformAccessory {
     this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
 
-    // add pressure sensor
-    this.airPressureService = this.accessory.getService('Air Pressure') ||
+    // add pressure sensor (not supported by HomeKit)
+    /** this.airPressureService = this.accessory.getService('Air Pressure') ||
       this.accessory.addService(AirPressureService, `Air Pressure ${this.displayName}`, 'YourUniqueIdentifier-21');
-    // bind pressure sensor service to read function
     this.airPressureService.getCharacteristic(AirPressureLevel)
       .onGet(this.getAirPressure.bind(this));
-    // bind pressure sensor service to status function
     this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getStatus.bind(this));
+    **/
 
     // Start auto-refresh states
     setInterval(() => {
