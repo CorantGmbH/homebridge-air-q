@@ -57,7 +57,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
     const exampleDevices = [
       {
         exampleUniqueId: 'ABCD',
-        exampleDisplayName: 'Wohnzimmer',
+        displayName: 'Wohnzimmer',
       },
     ];
 
@@ -91,10 +91,10 @@ export class AirQPlatform implements DynamicPlatformPlugin {
         // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
       } else {
         // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory:', device.exampleDisplayName);
+        this.log.info('Adding new accessory:', device.displayName);
 
         // create a new accessory
-        const accessory = new this.api.platformAccessory(device.exampleDisplayName, uuid);
+        const accessory = new this.api.platformAccessory(device.displayName, uuid);
 
         // store a copy of the device object in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
@@ -109,28 +109,4 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       }
     }
   }
-}
-
-/**
- * Service "Pressure Sensor"
- */
-export declare class PressureSensor extends Service {
-    static readonly UUID: string;
-    constructor(displayName?: string, subtype?: string);
-}
-
-module.exports = function (homebridge) {
-    PressureLevel = function () {
-      Characteristic.call(this, 'Atmospheric Pressure', 'MyUniqueIdentifier-1');
-      this.setProps({
-          format: Characteristic.Formats.DATA,
-          unit: "hPa",
-          maxValue: 1500,
-          minValue: 500,
-          minStep: 0.01,
-          perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
-      });
-      this.value = this.getDefaultValue();
-  };
-  inherits(EveAirPressure, Characteristic);
 }
