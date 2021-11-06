@@ -60,9 +60,8 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
         // Alternatively use the configured IP address and execude a GET /ping
 
-        uniqueId: 'ABCD',
         displayName: 'Wohnzimmer',
-        serialNumber: '12345',
+        serialNumber: 'ABCD',
         deviceType: 'air-Q Pro',
         manufacturer: 'Corant GmbH',
         firmwareRevision: '1.77',
@@ -77,7 +76,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.uniqueId);
+      const uuid = this.api.hap.uuid.generate(device.serialNumber);
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
