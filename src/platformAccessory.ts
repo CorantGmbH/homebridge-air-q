@@ -20,6 +20,17 @@ interface DataPacket {
   tvoc?: number;
 }
 
+interface SensorStatus {
+  health: boolean;
+  performance: boolean;
+  temperature: boolean;
+  humidity: boolean;
+  co2: boolean;
+  co: boolean;
+  pm2_5: boolean;
+  pressure: boolean;
+}
+
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -37,6 +48,7 @@ export class AirQPlatformAccessory {
   private updateInterval: number;
   //private airPressureService: Service;
   private latestData: DataPacket;
+  private sensorStatusActive: SensorStatus;
 
   /**
    * These are just used to create a working example
@@ -74,18 +86,21 @@ export class AirQPlatformAccessory {
      * can use the same sub type id.)
      */
 
+    // get initial sensorStatus
+    this.sensorStatusActive = this.getSensorStatus();
+
     // get initial data packet
     this.latestData = this.getSensorData();
 
     // add temperature sensor
     this.temperatureSensorService = this.accessory.getService('Temperature') ||
-      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-25');
+      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-26');
     // bind temperature sensor service to read function
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
     // bind temperature sensor service to status function
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getTemperatureStatus.bind(this));
 
     // add humidty sensor
     this.humidtySensorService = this.accessory.getService('Humidity') ||
@@ -95,7 +110,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getHumidity.bind(this));
     // bind temperature sensor service to status function
     this.humidtySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getHumidityStatus.bind(this));
 
     // add CO2 sensor
     this.co2SensorService = this.accessory.getService('CO2') ||
@@ -107,7 +122,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getCO2detected.bind(this));
     // bind CO2 sensor service to status function
     this.co2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getCO2Status.bind(this));
 
     // add CO sensor
     this.coSensorService = this.accessory.getService('CO') ||
@@ -119,7 +134,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getCOdetected.bind(this));
     // bind CO sensor service to status function
     this.coSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getCOStatus.bind(this));
 
     // add health air quality sensor for not individually possible values
     this.healthSensorService = this.accessory.getService('Health') ||
@@ -144,7 +159,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getPM2_5level.bind(this));
     // bind air quality sensor service to status function
     this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getHealthStatus.bind(this));
 
     // add performance air quality sensor
     this.performanceSensorService = this.accessory.getService('Performance') ||
@@ -160,7 +175,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getVOClevel.bind(this));
     // bind performance air quality sensor service to status function
     this.performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getPerformanceStatus.bind(this));
 
     // add smoke detector
     this.smokeSensorService = this.accessory.getService('Smoke') ||
@@ -170,7 +185,7 @@ export class AirQPlatformAccessory {
       .onGet(this.getSmokeDetected.bind(this));
     // bind CO sensor service to status function
     this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getSmokeDetectedStatus.bind(this));
 
     // add pressure sensor (not supported by HomeKit)
     /** this.airPressureService = this.accessory.getService('Air Pressure') ||
@@ -178,7 +193,7 @@ export class AirQPlatformAccessory {
     this.airPressureService.getCharacteristic(AirPressureLevel)
       .onGet(this.getAirPressure.bind(this));
     this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getStatus.bind(this));
+      .onGet(this.getPressureStatus.bind(this));
     **/
 
     // Start auto-refresh states
@@ -188,10 +203,46 @@ export class AirQPlatformAccessory {
     this.updateStates();
   }
 
-  async getStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getStatus requested');
+  async getTemperatureStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getTemperatureStatus requested');
+    return this.sensorStatusActive.temperature;
+  }
+
+  async getHumidityStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getHumidityStatus requested');
+    return this.sensorStatusActive.humidity;
+  }
+
+  async getHealthStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getHealthStatus requested');
+    return this.sensorStatusActive.health;
+  }
+
+  async getPerformanceStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getPerformanceStatus requested');
     const currentValue = true;
-    return currentValue;
+    return this.sensorStatusActive.performance;
+  }
+
+  async getCO2Status(value: CharacteristicValue) {
+    this.platform.log.debug('getCO2Status requested');
+    return this.sensorStatusActive.co2;
+  }
+
+  async getCOStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getCOStatus requested');
+    return this.sensorStatusActive.co;
+  }
+
+  async getPressureStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getPressureStatus requested');
+    const currentValue = true;
+  return this.sensorStatusActive.pressure;
+  }
+
+  async getSmokeDetectedStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getSmokeDetectedStatus requested');
+    return this.sensorStatusActive.pm2_5;
   }
 
   async getSmokeDetected(value: CharacteristicValue) {
@@ -314,6 +365,27 @@ export class AirQPlatformAccessory {
     return data;
   }
 
+  getSensorStatus() {
+    this.platform.log.debug('getSensorData requested');
+    // Open connection to air-Q
+
+    // retrieve data or averaged data
+
+    // retrieve initial sensor status from data in JSON object
+    let status: SensorStatus = {
+      health: true,
+      performance: true,
+      temperature: true,
+      humidity: true,
+      co2: true,
+      co: true,
+      pm2_5: true,
+      pressure: true,
+    }
+
+    return status;
+  }
+
   getDeviceConfig() {
     // Open connection to air-Q
 
@@ -325,7 +397,6 @@ export class AirQPlatformAccessory {
   }
 
   async updateStates() {
-    this.platform.log.debug('updateStates requested');
     this.latestData = this.getSensorData()
     return true;
   }
