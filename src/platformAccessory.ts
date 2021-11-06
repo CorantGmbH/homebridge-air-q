@@ -4,6 +4,22 @@ import { AirQPlatform } from './platform';
 
 //import { AirPressureService, AirPressureLevel } from './customService'
 
+interface DataPacket {
+  health: number;
+  performance: number;
+  temperature: number;
+  humidity: number;
+  co2?: number;
+  co?: number;
+  pm2_5?: number;
+  pm10?: number;
+  pressure?: number;
+  no2?: number;
+  o3?: number;
+  so2?: number;
+  tvoc?: number;
+}
+
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -17,9 +33,10 @@ export class AirQPlatformAccessory {
   private healthSensorService: Service;
   private performanceSensorService: Service;
   private smokeSensorService: Service;
-  private airPressureService: Service;
   private displayName: string;
   private updateInterval: number;
+  //private airPressureService: Service;
+  private latestData: DataPacket;
 
   /**
    * These are just used to create a working example
@@ -34,15 +51,17 @@ export class AirQPlatformAccessory {
     private readonly platform: AirQPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-    this.displayName = accessory.context.device.displayName;
+    this.displayName = this.accessory.context.device.displayName;
     this.updateInterval = parseInt(this.platform.config.updateInterval) || 10;
     this.platform.log.info(`[${this.displayName}] Update Interval:`, this.updateInterval, 's');
 
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Corant GmbH')
-      .setCharacteristic(this.platform.Characteristic.Model, 'air-Q')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, this.accessory.context.device.manufacturer)
+      .setCharacteristic(this.platform.Characteristic.Model, this.accessory.context.device.deviceType)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.accessory.context.device.serialNumber)
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, this.accessory.context.device.firmwareRevision)
+      .setCharacteristic(this.platform.Characteristic.HardwareRevision, this.accessory.context.device.hardwareRevision);
 
     /**
      * Creating multiple services of the same type.
@@ -55,9 +74,12 @@ export class AirQPlatformAccessory {
      * can use the same sub type id.)
      */
 
+    // get initial data packet
+    this.latestData = this.getSensorData();
+
     // add temperature sensor
     this.temperatureSensorService = this.accessory.getService('Temperature') ||
-      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-23');
+      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-25');
     // bind temperature sensor service to read function
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
@@ -180,19 +202,17 @@ export class AirQPlatformAccessory {
 
   async getTemperature(value: CharacteristicValue) {
     this.platform.log.debug('getTemperature requested');
-    const currentValue = 22.3;
-    return currentValue;
+    return this.latestData.temperature;
   }
 
   async getHumidity(value: CharacteristicValue) {
     this.platform.log.debug('getHumidity requested');
-    const currentValue = 56.3;
-    return currentValue;
+    return this.latestData.humidity;
   }
 
   async getCO2level(value: CharacteristicValue) {
     this.platform.log.debug('getCO2level requested');
-    const currentValue = 543;
+    let currentValue = this.latestData.co2 === undefined ? 0 : this.latestData.co2;
     return currentValue;
   }
 
@@ -204,7 +224,7 @@ export class AirQPlatformAccessory {
 
   async getCOlevel(value: CharacteristicValue) {
     this.platform.log.debug('getCOlevel requested');
-    const currentValue = 1.8;
+    let currentValue = this.latestData.co === undefined ? 0 : this.latestData.co;
     return currentValue;
   }
 
@@ -228,52 +248,85 @@ export class AirQPlatformAccessory {
 
   async getNO2level(value: CharacteristicValue) {
     this.platform.log.debug('getNO2level requested');
-    const currentValue = 43.5;
+    let currentValue = this.latestData.no2 === undefined ? 0 : this.latestData.no2;
     return currentValue;
   }
 
   async getO3level(value: CharacteristicValue) {
     this.platform.log.debug('getO3level requested');
-    const currentValue = 38.3;
+    let currentValue = this.latestData.o3 === undefined ? 0 : this.latestData.o3;
     return currentValue;
   }
 
   async getSO2level(value: CharacteristicValue) {
     this.platform.log.debug('getSO2level requested');
-    const currentValue = 127.7;
+    let currentValue = this.latestData.so2 === undefined ? 0 : this.latestData.so2;
     return currentValue;
   }
 
   async getVOClevel(value: CharacteristicValue) {
     this.platform.log.debug('getVOClevel requested');
-    const currentValue = 678.3;
+    let currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc;
     return currentValue;
   }
 
   async getPM2_5level(value: CharacteristicValue) {
     this.platform.log.debug('getPM2_5level requested');
-    const currentValue = 3.2;
+    let currentValue = this.latestData.pm2_5 === undefined ? 0 : this.latestData.pm2_5;
     return currentValue;
   }
 
   async getPM10level(value: CharacteristicValue) {
     this.platform.log.debug('getPM10level requested');
-    const currentValue = 7.3;
+    let currentValue = this.latestData.pm10 === undefined ? 0 : this.latestData.pm10;
     return currentValue;
   }
 
   async getAirPressure(value: CharacteristicValue) {
     this.platform.log.debug('getPressure requested');
-    const currentValue = 998.3;
+    let currentValue = this.latestData.pressure === undefined ? 0 : this.latestData.pressure;
     return currentValue;
   }
 
   getSensorData() {
+    this.platform.log.debug('getSensorData requested');
+    // Open connection to air-Q
+
+    // retrieve data or averaged data
+
+    // update latestData JSON object
+    let data: DataPacket = {
+      health: 877,
+      performance: 744,
+      temperature: 24.5,
+      humidity: 24.5,
+      co2: 643,
+      co: 1.8,
+      pm2_5: 4.3,
+      pm10: 8.2,
+      pressure: 998.06,
+      no2: 24.8,
+      o3: 14.5,
+      so2: 174.5,
+      tvoc: 356,
+    }
+
+    return data;
+  }
+
+  getDeviceConfig() {
+    // Open connection to air-Q
+
+    // retrieve config
+
+    // extract relevant entries
+
     return true;
   }
 
   async updateStates() {
     this.platform.log.debug('updateStates requested');
+    this.latestData = this.getSensorData()
     return true;
   }
 }

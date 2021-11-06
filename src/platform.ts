@@ -54,20 +54,30 @@ export class AirQPlatform implements DynamicPlatformPlugin {
     // EXAMPLE ONLY
     // A real plugin you would discover accessories from the local network, cloud services
     // or a user-defined array in the platform config.
-    const exampleDevices = [
+    const airQdevices = [
       {
-        exampleUniqueId: 'ABCD',
+        // Detect air-Q in the local network using mDNS
+
+        // Alternatively use the configured IP address and execude a GET /ping
+
+        uniqueId: 'ABCD',
         displayName: 'Wohnzimmer',
+        serialNumber: '12345',
+        deviceType: 'air-Q Pro',
+        manufacturer: 'Corant GmbH',
+        firmwareRevision: '1.77',
+        hardwareRevision: '1',
+
       },
     ];
 
     // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of exampleDevices) {
+    for (const device of airQdevices) {
 
       // generate a unique id for the accessory this should be generated from
       // something globally unique, but constant, for example, the device serial
       // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
+      const uuid = this.api.hap.uuid.generate(device.uniqueId);
 
       // see if an accessory with the same uuid has already been registered and restored from
       // the cached devices we stored in the `configureAccessory` method above
@@ -78,8 +88,8 @@ export class AirQPlatform implements DynamicPlatformPlugin {
         this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
         // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+        existingAccessory.context.device = device;
+        this.api.updatePlatformAccessories([existingAccessory]);
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
