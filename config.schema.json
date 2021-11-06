@@ -46,6 +46,13 @@
         "type": "boolean",
         "default": false,
         "description": "All sensors of air-Q will be available in HomeKit with their average values."
+      },
+      "updateInterval": {
+        "title": "Update Interval",
+        "type": "number",
+        "required": false,
+        "default": 10,
+        "minimum": 1
       }
     }
   }
