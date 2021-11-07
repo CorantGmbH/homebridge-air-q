@@ -19,6 +19,7 @@ interface DataPacket {
   so2?: number;
   h2s?: number;
   tvoc?: number;
+  sound?: number;
 }
 
 interface SensorStatus {
@@ -35,6 +36,7 @@ interface SensorStatus {
   h2s: boolean;
   pressure: boolean;
   tvoc: boolean;
+  sound: boolean;
 }
 
 /**
@@ -46,13 +48,20 @@ export class AirQPlatformAccessory {
   private temperatureSensorService: Service;
   private humidtySensorService: Service;
   private co2SensorService: Service;
+  private no2SensorService: Service;
+  private so2SensorService: Service;
+  private o3SensorService: Service;
+  private h2sSensorService: Service;
+  private vocSensorService: Service;
   private coSensorService: Service;
+  private pmSensorService: Service;
   private healthSensorService: Service;
   private performanceSensorService: Service;
   private smokeSensorService: Service;
   private displayName: string;
   private updateInterval: number;
-  //private airPressureService: Service;
+  private airPressureService: Service;
+  private noiseSensorService: Service;
   private latestData: DataPacket;
   private sensorStatusActive: SensorStatus;
 
@@ -100,7 +109,7 @@ export class AirQPlatformAccessory {
 
     // add temperature sensor
     this.temperatureSensorService = this.accessory.getService('Temperature') ||
-      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-36');
+      this.accessory.addService(this.platform.Service.TemperatureSensor, `Temperature ${this.displayName}`, 'YourUniqueIdentifier-42');
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getTemperature.bind(this));
     this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
@@ -108,7 +117,7 @@ export class AirQPlatformAccessory {
 
     // add humidty sensor
     this.humidtySensorService = this.accessory.getService('Humidity') ||
-      this.accessory.addService(this.platform.Service.HumiditySensor, `Humidity ${this.displayName}`, 'YourUniqueIdentifier-11');
+      this.accessory.addService(this.platform.Service.HumiditySensor, `Humidity ${this.displayName}`, 'YourUniqueIdentifier-41');
     this.humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
       .onGet(this.getHumidity.bind(this));
     this.humidtySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
@@ -167,65 +176,65 @@ export class AirQPlatformAccessory {
       .onGet(this.getPerformanceStatus.bind(this));
 
     // add air quality sensor for O3
-    this.healthSensorService = this.accessory.getService('O3') ||
+    this.o3SensorService = this.accessory.getService('O3') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `O3 ${this.displayName}`, 'YourUniqueIdentifier-30');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.o3SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getO3quality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+    this.o3SensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
       .onGet(this.getO3level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.o3SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getO3Status.bind(this));
 
     // add air quality sensor for H2S
-    this.healthSensorService = this.accessory.getService('H2S') ||
+    this.h2sSensorService = this.accessory.getService('H2S') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `H2S ${this.displayName}`, 'YourUniqueIdentifier-31');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.h2sSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getH2Squality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+    this.h2sSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
       .onGet(this.getH2Slevel.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.h2sSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getH2SStatus.bind(this));
 
     // add air quality sensor for SO2
-    this.healthSensorService = this.accessory.getService('SO2') ||
+    this.so2SensorService = this.accessory.getService('SO2') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `SO2 ${this.displayName}`, 'YourUniqueIdentifier-32');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.so2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getSO2quality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+    this.so2SensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
       .onGet(this.getSO2level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.so2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getSO2Status.bind(this));
 
     // add air quality sensor for NO2
-    this.healthSensorService = this.accessory.getService('NO2') ||
+    this.no2SensorService = this.accessory.getService('NO2') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `NO2 ${this.displayName}`, 'YourUniqueIdentifier-33');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.no2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getNO2quality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+    this.no2SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
       .onGet(this.getNO2level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.no2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getNO2Status.bind(this));
 
     // add air quality sensor for VOC
-    this.healthSensorService = this.accessory.getService('VOC') ||
+    this.vocSensorService = this.accessory.getService('VOC') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `VOC ${this.displayName}`, 'YourUniqueIdentifier-34');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.vocSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getVOCquality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+    this.vocSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
       .onGet(this.getVOClevel.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.vocSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getVOCStatus.bind(this));
 
     // add air quality sensor for particulates
-    this.healthSensorService = this.accessory.getService('Particulates') ||
+    this.pmSensorService = this.accessory.getService('Particulates') ||
       this.accessory.addService(this.platform.Service.AirQualitySensor, `Particulates ${this.displayName}`, 'YourUniqueIdentifier-35');
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+    this.pmSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
       .onGet(this.getPM2_5quality.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
+    this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
       .onGet(this.getPM2_5level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+    this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
       .onGet(this.getPM10level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    this.pmSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getPM2_5Status.bind(this));
 
     // add smoke detector
@@ -236,14 +245,30 @@ export class AirQPlatformAccessory {
     this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getSmokeDetectedStatus.bind(this));
 
-    // add pressure sensor (not supported by HomeKit)
-    /** this.airPressureService = this.accessory.getService('Air Pressure') ||
-      this.accessory.addService(AirPressureService, `Air Pressure ${this.displayName}`, 'YourUniqueIdentifier-21');
-    this.airPressureService.getCharacteristic(AirPressureLevel)
+    // add noise sensor as light sensor
+    this.noiseSensorService = this.accessory.getService('Noise') ||
+      this.accessory.addService(this.platform.Service.LightSensor, `Noise ${this.displayName}`, 'YourUniqueIdentifier-39');
+    this.noiseSensorService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+      .onGet(this.getNoiseLevel.bind(this));
+    this.noiseSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getNoiseStatus.bind(this));
+
+    // add custom pressure sensor (not supported by HomeKit)
+    //this.airPressureService = this.accessory.getService('Air Pressure') ||
+    //  this.accessory.addService(AirPressureService, `Air Pressure ${this.displayName}`, 'YourUniqueIdentifier-21');
+    //this.airPressureService.getCharacteristic(AirPressureLevel)
+    //  .onGet(this.getAirPressure.bind(this));
+    //this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
+    //  .onGet(this.getPressureStatus.bind(this));
+
+    // add pressure sensor as light sensor
+    this.airPressureService = this.accessory.getService('Air Pressure') ||
+      this.accessory.addService(this.platform.Service.LightSensor, `Air Pressure ${this.displayName}`, 'YourUniqueIdentifier-38');
+    this.airPressureService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
       .onGet(this.getAirPressure.bind(this));
     this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getPressureStatus.bind(this));
-    **/
+
 
     // Start auto-refresh states
     setInterval(() => {
@@ -307,6 +332,12 @@ export class AirQPlatformAccessory {
     this.platform.log.debug('getPressureStatus requested');
     const currentValue = true;
   return this.sensorStatusActive.pressure;
+  }
+
+  async getNoiseStatus(value: CharacteristicValue) {
+    this.platform.log.debug('getNoiseStatus requested');
+    const currentValue = true;
+  return this.sensorStatusActive.sound;
   }
 
   async getVOCStatus(value: CharacteristicValue) {
@@ -461,6 +492,13 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
+  async getNoiseLevel(value: CharacteristicValue) {
+    this.platform.log.debug('getNoiseLevel requested');
+    let currentValue = this.latestData.sound === undefined ? 0 : this.latestData.sound;
+    return currentValue;
+  }
+
+
   getSensorData() {
     this.platform.log.debug('getSensorData requested');
     // Open connection to air-Q
@@ -483,6 +521,7 @@ export class AirQPlatformAccessory {
       so2: 174.5,
       h2s: 88.5,
       tvoc: 356,
+      sound: 45.3,
     }
 
     return data;
@@ -509,6 +548,7 @@ export class AirQPlatformAccessory {
       so2: true,
       h2s: true,
       tvoc: true,
+      sound: true,
     }
 
     return status;
