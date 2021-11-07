@@ -157,6 +157,9 @@ export class AirQPlatformAccessory {
     // bind air quality sensor service to PM2.5 sensor
     this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
       .onGet(this.getPM2_5level.bind(this));
+    // bind air quality sensor service to PM10 sensor
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+      .onGet(this.getPM10level.bind(this));
     // bind air quality sensor service to status function
     this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getHealthStatus.bind(this));
@@ -180,10 +183,10 @@ export class AirQPlatformAccessory {
     // add smoke detector
     this.smokeSensorService = this.accessory.getService('Smoke') ||
       this.accessory.addService(this.platform.Service.SmokeSensor, `Smoke ${this.displayName}`, 'YourUniqueIdentifier-18');
-    // bind CO sensor service to read function
+    // bind smoke sensor service to read function
     this.smokeSensorService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
       .onGet(this.getSmokeDetected.bind(this));
-    // bind CO sensor service to status function
+    // bind smoke sensor service to status function
     this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
       .onGet(this.getSmokeDetectedStatus.bind(this));
 
