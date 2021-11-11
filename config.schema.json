@@ -3,6 +3,7 @@
   "pluginType": "platform",
   "singular": true,
   "headerDisplay": "Homebridge plugin for air-Q",
+  "footerDisplay": "For a detailed description, see https://github.com/CorantGmbH/homebridge-air-q",
   "schema": {
     "type": "object",
     "properties": {
@@ -13,46 +14,72 @@
         "default": "air-Q",
         "description": "Plugin name as displayed in the homebridge log."
       },
-      "serialNumber": {
-        "title": "Serial number (first five digits)",
+      "serialNumber1": {
+        "title": "Serial number (first five digits) of your air-Q",
         "type": "string",
         "required": true,
         "maxLength": 5,
         "minLength": 5,
         "description": "Will be used to retrieve the IP of the air-Q device by MDNS."
       },
-      "password": {
+      "password1": {
         "title": "Password of this air-Q",
         "type": "string",
         "required": true,
         "minLength": 8,
-        "description": "Necessary to decrypt the data from air-Q."
+        "description": "Be aware that you have to install 'crypto-js' with the command 'npm install crypto-js' before this will work!"
       },
-      "ipAddress": {
-        "title": "IPv4 address (optional)",
+      "serialNumber2": {
+        "title": "Serial number (first five digits) of your 2nd air-Q",
         "type": "string",
         "required": false,
-        "format": "ipv4",
-        "description": "Will be used instead of MDNS detection, if given."
+        "maxLength": 5,
+        "minLength": 5,
       },
-      "liveValues": {
-        "title": "Expose live values",
-        "type": "boolean",
-        "default": true,
-        "description": "All sensors of air-Q will be available in HomeKit with their live values."
-      },
-      "averages": {
-        "title": "Expose averaged values",
-        "type": "boolean",
-        "default": false,
-        "description": "All sensors of air-Q will be available in HomeKit with their average values."
-      },
-      "updateInterval": {
-        "title": "Update Interval",
-        "type": "number",
+      "password2": {
+        "title": "Password of 2nd air-Q",
+        "type": "string",
         "required": false,
-        "default": 10,
-        "minimum": 1
+        "minLength": 8,
+      },
+      "serialNumber3": {
+        "title": "Serial number (first five digits) of your 3rd air-Q",
+        "type": "string",
+        "required": false,
+        "maxLength": 5,
+        "minLength": 5,
+      },
+      "password3": {
+        "title": "Password of 3rd air-Q",
+        "type": "string",
+        "required": false,
+        "minLength": 8,
+      },
+      "serialNumber4": {
+        "title": "Serial number (first five digits) of your 4th air-Q",
+        "type": "string",
+        "required": false,
+        "maxLength": 5,
+        "minLength": 5,
+      },
+      "password4": {
+        "title": "Password of 4th air-Q",
+        "type": "string",
+        "required": false,
+        "minLength": 8,
+      },
+      "serialNumber5": {
+        "title": "Serial number (first five digits) of your 5th air-Q",
+        "type": "string",
+        "required": false,
+        "maxLength": 5,
+        "minLength": 5,
+      },
+      "password5": {
+        "title": "Password of 5th air-Q",
+        "type": "string",
+        "required": false,
+        "minLength": 8,
       }
     }
   }
