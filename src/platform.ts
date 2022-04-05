@@ -96,6 +96,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
             const FIRMWARE = response['air-Q-Software-Version'].split('_')[2];
             const HARDWARE = response['air-Q-Software-Version'].split('_')[1];
             const IP = response['WLAN config']['IP address'];
+            const SENSORLIST = response['sensors'];
 
             this.log.info('Found', mdnsService.txt.device, '"'+NAME+'"');
             this.log.info('\tmDNS Address:', HOST);
@@ -114,6 +115,9 @@ export class AirQPlatform implements DynamicPlatformPlugin {
               hardwareRevision: HARDWARE,
               deviceType: DEVICETYPE,
               shortId: SHORTID,
+              ipAddress: IP,
+              sensorList: SENSORLIST,
+              password: PASSWORD,
             };
 
             // generate a unique id for the accessory this should be generated from
