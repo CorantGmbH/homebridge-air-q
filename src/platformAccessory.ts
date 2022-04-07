@@ -123,10 +123,38 @@ export class AirQPlatformAccessory {
      */
 
     // get initial sensorStatus
-    this.sensorStatusActive = this.getSensorStatus();
+    this.sensorStatusActive = {
+      health: false,
+      performance: false,
+      temperature: false,
+      humidity: false,
+      co2: false,
+      co: false,
+      pm2_5: false,
+      pressure: false,
+      no2: false,
+      o3: false,
+      so2: false,
+      h2s: false,
+      tvoc: false,
+      sound: false,
+      cl2_M20: false,
+      ch2o_M10: false,
+      ch4_MIPEX: false,
+      c3h8_MIPEX: false,
+      h2_M1000: false,
+      nh3_MR100: false,
+    };
+    this.updateStates();
 
     // get initial data packet
-    this.latestData = this.getSensorData();
+    this.latestData = {
+      health: 0.0,
+      performance: 0.0,
+      temperature: 0.0,
+      humidity: 0.0,
+    };
+    this.updateData();
 
     // add temperature sensor
     if (this.sensorList.indexOf('temperature') !== -1) {
@@ -676,7 +704,7 @@ export class AirQPlatformAccessory {
 
   async getVOClevel(value: CharacteristicValue) {
     this.platform.log.debug('getVOClevel requested');
-    const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc;
+    const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc / 1000;
     return currentValue;
   }
 
@@ -717,103 +745,99 @@ export class AirQPlatformAccessory {
   }
 
 
-  getSensorData() {
+  async getSensorData() {
     this.platform.log.debug('getSensorData requested');
+    // predefine returned object
+    const data: DataPacket = {
+      health: 0.0,
+      performance: 0.0,
+      temperature: 0.0,
+      humidity: 0.0,
+      co2: 0.0,
+      co: 0.0,
+      pm2_5: 0.0,
+      pm10: 0.0,
+      pressure: 0.0,
+      no2: 0.0,
+      o3: 0.0,
+      so2: 0.0,
+      h2s: 0.0,
+      tvoc: 0.0,
+      sound: 0.0,
+      cl2_M20: 0.0,
+      ch2o_M10: 0.0,
+      ch4_MIPEX: 0.0,
+      c3h8_MIPEX: 0.0,
+      h2_M1000: 0.0,
+      nh3_MR100: 0.0,
+    };
+
     // Open connection to air-Q
-    performRequest({
+    const airqDataResponse = await performRequest({
       host: this.accessory.context.device.ipAddress,
       path: '/data',
       method: 'GET',
-    },
-    this.accessory.context.device.password,
-    )
-      .then(response => {
-        if (response) {
-          // update latestData JSON object
-          const data: DataPacket = {
-            health: 0.0,
-            performance: 0.0,
-            temperature: 0.0,
-            humidity: 0.0,
-            co2: 0.0,
-            co: 0.0,
-            pm2_5: 0.0,
-            pm10: 0.0,
-            pressure: 0.0,
-            no2: 0.0,
-            o3: 0.0,
-            so2: 0.0,
-            h2s: 0.0,
-            tvoc: 0.0,
-            sound: 0.0,
-            cl2_M20: 0.0,
-            ch2o_M10: 0.0,
-            ch4_MIPEX: 0.0,
-            c3h8_MIPEX: 0.0,
-            h2_M1000: 0.0,
-            nh3_MR100: 0.0,
-          };
-          for (let key in data){
-            if (key in response){
-              data[key] = response[key][0];
-            }
-          }
-          return data;
+    }, this.accessory.context.device.password);
+    if (airqDataResponse) {
+      for (const key in data){
+        if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
+          data[key] = airqDataResponse[key][0];
         }
-      });
+      }
+    }
+    return data;
   }
 
-  getSensorStatus() {
+  async getSensorStatus() {
     this.platform.log.debug('getSensorStatus requested');
+
+    // predefine returned object
+    const status: SensorStatus = {
+      health: false,
+      performance: false,
+      temperature: false,
+      humidity: false,
+      co2: false,
+      co: false,
+      pm2_5: false,
+      pressure: false,
+      no2: false,
+      o3: false,
+      so2: false,
+      h2s: false,
+      tvoc: false,
+      sound: false,
+      cl2_M20: false,
+      ch2o_M10: false,
+      ch4_MIPEX: false,
+      c3h8_MIPEX: false,
+      h2_M1000: false,
+      nh3_MR100: false,
+    };
+
     // Open connection to air-Q
-    performRequest({
+    const airqDataResponse = await performRequest({
       host: this.accessory.context.device.ipAddress,
       path: '/data',
       method: 'GET',
-    },
-    this.accessory.context.device.password,
-    )
-      .then(response => {
-        if (response) {
-          const status: SensorStatus = {
-            health: false,
-            performance: false,
-            temperature: false,
-            humidity: false,
-            co2: false,
-            co: false,
-            pm2_5: false,
-            pressure: false,
-            no2: false,
-            o3: false,
-            so2: false,
-            h2s: false,
-            tvoc: false,
-            sound: false,
-            cl2_M20: false,
-            ch2o_M10: false,
-            ch4_MIPEX: false,
-            c3h8_MIPEX: false,
-            h2_M1000: false,
-            nh3_MR100: false,
-          };
-          for (let key in status){
-            if (key in response){
-              status[key] = true;
-            }
-          }
-          return status;
+    }, this.accessory.context.device.password);
+    if (airqDataResponse) {
+      for (const key in status){
+        if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
+          status[key] = true;
         }
-      });
+      }
+    }
+    return status;
   }
 
   async updateData() {
-    this.latestData = this.getSensorData();
+    this.latestData = await this.getSensorData();
     return true;
   }
 
   async updateStates() {
-    this.sensorStatusActive = this.getSensorStatus();
+    this.sensorStatusActive = await this.getSensorStatus();
     return true;
   }
 }
