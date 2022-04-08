@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { Service, PlatformAccessory } from 'homebridge';
 
 import { AirQPlatform } from './platform';
 import { performRequest } from './httpRequest';
@@ -439,314 +439,477 @@ export class AirQPlatformAccessory {
     this.updateStates();
   }
 
-  async getTemperatureStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getTemperatureStatus requested');
+  async getTemperatureStatus() {
     return this.sensorStatusActive.temperature;
   }
 
-  async getHumidityStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getHumidityStatus requested');
+  async getHumidityStatus() {
     return this.sensorStatusActive.humidity;
   }
 
-  async getHealthStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getHealthStatus requested');
+  async getHealthStatus() {
     return this.sensorStatusActive.health;
   }
 
-  async getPerformanceStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getPerformanceStatus requested');
-    const currentValue = true;
+  async getPerformanceStatus() {
     return this.sensorStatusActive.performance;
   }
 
-  async getCO2Status(value: CharacteristicValue) {
-    this.platform.log.debug('getCO2Status requested');
+  async getCO2Status() {
     return this.sensorStatusActive.co2;
   }
 
-  async getNO2Status(value: CharacteristicValue) {
-    this.platform.log.debug('getNO2Status requested');
+  async getNO2Status() {
     return this.sensorStatusActive.no2;
   }
 
-  async getCl2Status(value: CharacteristicValue) {
-    this.platform.log.debug('getCl2Status requested');
+  async getCl2Status() {
     return this.sensorStatusActive.cl2_M20;
   }
 
-  async getCH2OStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getCH2OStatus requested');
+  async getCH2OStatus() {
     return this.sensorStatusActive.ch2o_M10;
   }
 
-  async getH2Status(value: CharacteristicValue) {
-    this.platform.log.debug('getH2Status requested');
+  async getH2Status() {
     return this.sensorStatusActive.h2_M1000;
   }
 
-  async getNH3Status(value: CharacteristicValue) {
-    this.platform.log.debug('getNH3Status requested');
+  async getNH3Status() {
     return this.sensorStatusActive.nh3_MR100;
   }
 
-  async getC3H8Status(value: CharacteristicValue) {
-    this.platform.log.debug('getC3H8Status requested');
+  async getC3H8Status() {
     return this.sensorStatusActive.c3h8_MIPEX;
   }
 
-  async getCH4Status(value: CharacteristicValue) {
-    this.platform.log.debug('getCH4Status requested');
+  async getCH4Status() {
     return this.sensorStatusActive.ch4_MIPEX;
   }
 
-  async getSO2Status(value: CharacteristicValue) {
-    this.platform.log.debug('getSO2Status requested');
+  async getSO2Status() {
     return this.sensorStatusActive.so2;
   }
 
-  async getH2SStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getH2SStatus requested');
+  async getH2SStatus() {
     return this.sensorStatusActive.h2s;
   }
 
-  async getO3Status(value: CharacteristicValue) {
-    this.platform.log.debug('getO3Status requested');
+  async getO3Status() {
     return this.sensorStatusActive.o3;
   }
 
-  async getCOStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getCOStatus requested');
+  async getCOStatus() {
     return this.sensorStatusActive.co;
   }
 
-  async getPressureStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getPressureStatus requested');
-    const currentValue = true;
+  async getPressureStatus() {
     return this.sensorStatusActive.pressure;
   }
 
-  async getNoiseStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getNoiseStatus requested');
-    const currentValue = true;
+  async getNoiseStatus() {
     return this.sensorStatusActive.sound;
   }
 
-  async getVOCStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getVOCStatus requested');
-    const currentValue = true;
+  async getVOCStatus() {
     return this.sensorStatusActive.tvoc;
   }
 
-  async getPM2_5Status(value: CharacteristicValue) {
-    this.platform.log.debug('getPM2_5Status requested');
+  async getPM2_5Status() {
     return this.sensorStatusActive.pm2_5;
   }
 
-  async getSmokeDetectedStatus(value: CharacteristicValue) {
-    this.platform.log.debug('getSmokeDetectedStatus requested');
+  async getSmokeDetectedStatus() {
     return this.sensorStatusActive.pm2_5;
   }
 
-  async getSmokeDetected(value: CharacteristicValue) {
-    this.platform.log.debug('getSmokeDetected requested');
-    const currentValue = this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+  async getSmokeDetected() {
+    let currentValue = this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+    if (this.latestData.pm2_5 === undefined || this.latestData.pm2_5 < 500) {
+      currentValue = this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED;
+    } else {
+      currentValue = this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED;
+    }
     return currentValue;
   }
 
-  async getTemperature(value: CharacteristicValue) {
-    this.platform.log.debug('getTemperature requested');
+  async getTemperature() {
     return this.latestData.temperature;
   }
 
-  async getHumidity(value: CharacteristicValue) {
-    this.platform.log.debug('getHumidity requested');
+  async getHumidity() {
     return this.latestData.humidity;
   }
 
-  async getCO2level(value: CharacteristicValue) {
-    this.platform.log.debug('getCO2level requested');
+  async getCO2level() {
     const currentValue = this.latestData.co2 === undefined ? 0 : this.latestData.co2;
     return currentValue;
   }
 
-  async getCO2detected(value: CharacteristicValue) {
-    this.platform.log.debug('getCO2detected requested');
-    const currentValue = this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_NORMAL;
+  async getCO2detected() {
+    let currentValue = this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_NORMAL;
+    if (this.latestData.co2 === undefined || this.latestData.co2 < 1500){
+      currentValue = this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_NORMAL;
+    } else {
+      currentValue = this.platform.Characteristic.CarbonDioxideDetected.CO2_LEVELS_ABNORMAL;
+    }
     return currentValue;
   }
 
-  async getCOlevel(value: CharacteristicValue) {
-    this.platform.log.debug('getCOlevel requested');
+  async getCOlevel() {
     const currentValue = this.latestData.co === undefined ? 0 : this.latestData.co;
     return currentValue;
   }
 
-  async getCOdetected(value: CharacteristicValue) {
-    this.platform.log.debug('getCOdetected requested');
-    const currentValue = this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL;
+  async getCOdetected() {
+    let currentValue = this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL;
+    if (this.latestData.co === undefined || this.latestData.co < 30){
+      currentValue = this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_NORMAL;
+    } else {
+      currentValue = this.platform.Characteristic.CarbonMonoxideDetected.CO_LEVELS_ABNORMAL;
+    }
     return currentValue;
   }
 
-  async getHealth(value: CharacteristicValue) {
-    this.platform.log.debug('getHealth requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getHealth() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.health === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.health > 900){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.health > 750){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.health > 500){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.health > 200){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getPerformance(value: CharacteristicValue) {
-    this.platform.log.debug('getPerformance requested');
-    const currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+  async getPerformance() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.performance === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.performance > 900){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.performance > 750){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.performance > 500){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.performance > 200){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getNO2quality(value: CharacteristicValue) {
-    this.platform.log.debug('getNO2quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getNO2quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.no2 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.no2 < 20){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.no2 < 45){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.no2 < 100){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.no2 < 250){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getNO2level(value: CharacteristicValue) {
-    this.platform.log.debug('getNO2level requested');
-    const currentValue = this.latestData.no2 === undefined ? 0 : this.latestData.no2;
+  async getNO2level() {
+    let currentValue = 0;
+    if (this.latestData.no2 === undefined || this.latestData.no2 < 0){
+      currentValue = 0;
+    } else if (this.latestData.no2 < 1000) {
+      currentValue = this.latestData.no2;
+    } else {
+      currentValue = 1000;
+    }
+    return currentValue;
     return currentValue;
   }
 
-  async getCl2quality(value: CharacteristicValue) {
-    this.platform.log.debug('getCl2quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getCl2quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.cl2_M20 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.cl2_M20 < 100){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.cl2_M20 < 400){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.cl2_M20 < 2000){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.cl2_M20 < 5000){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getCl2level(value: CharacteristicValue) {
-    this.platform.log.debug('getCl2level requested');
-    const currentValue = this.latestData.cl2_M20 === undefined ? 0 : this.latestData.cl2_M20;
+  async getCl2level() {
+    let currentValue = 0;
+    if (this.latestData.cl2_M20 === undefined || this.latestData.cl2_M20 < 0){
+      currentValue = 0;
+    } else if (this.latestData.cl2_M20 < 1000) {
+      currentValue = this.latestData.cl2_M20;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getNH3quality(value: CharacteristicValue) {
-    this.platform.log.debug('getNH3quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getNH3quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.nh3_MR100 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.nh3_MR100 < 300){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.nh3_MR100 < 1000){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.nh3_MR100 < 2500){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.nh3_MR100 < 5000){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getNH3level(value: CharacteristicValue) {
-    this.platform.log.debug('getNH3level requested');
-    const currentValue = this.latestData.nh3_MR100 === undefined ? 0 : this.latestData.nh3_MR100;
+  async getNH3level() {
+    let currentValue = 0;
+    if (this.latestData.nh3_MR100 === undefined || this.latestData.nh3_MR100 < 0){
+      currentValue = 0;
+    } else if (this.latestData.nh3_MR100 < 1000) {
+      currentValue = this.latestData.nh3_MR100;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getCH2Oquality(value: CharacteristicValue) {
-    this.platform.log.debug('getCH2Oquality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getCH2Oquality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.ch2o_M10 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.ch2o_M10 < 15){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.ch2o_M10 < 30){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.ch2o_M10 < 80){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.ch2o_M10 < 150){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getCH2Olevel(value: CharacteristicValue) {
-    this.platform.log.debug('getCH2Olevel requested');
-    const currentValue = this.latestData.ch2o_M10 === undefined ? 0 : this.latestData.ch2o_M10;
+  async getCH2Olevel() {
+    let currentValue = 0;
+    if (this.latestData.ch2o_M10 === undefined || this.latestData.ch2o_M10 < 0){
+      currentValue = 0;
+    } else if (this.latestData.ch2o_M10 < 1000) {
+      currentValue = this.latestData.ch2o_M10;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getCH4quality(value: CharacteristicValue) {
-    this.platform.log.debug('getCH4quality requested');
-    const currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+  async getCH4quality() {
+    let currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    if (this.latestData.ch4_MIPEX === undefined || this.latestData.ch4_MIPEX < 0.5){
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    } else {
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+    }
     return currentValue;
   }
 
-  async getC3H8quality(value: CharacteristicValue) {
-    this.platform.log.debug('getC3H8quality requested');
-    const currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+  async getC3H8quality() {
+    let currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    if (this.latestData.c3h8_MIPEX === undefined || this.latestData.c3h8_MIPEX < 0.25){
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    } else {
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+    }
     return currentValue;
   }
 
-  async getH2quality(value: CharacteristicValue) {
-    this.platform.log.debug('getH2quality requested');
-    const currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+  async getH2quality() {
+    let currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    if (this.latestData.h2_M1000 === undefined || this.latestData.h2_M1000 < 1000){
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    } else {
+      currentValue = this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+    }
     return currentValue;
   }
 
-  async getH2Slevel(value: CharacteristicValue) {
-    this.platform.log.debug('getH2Slevel requested');
-    const currentValue = this.latestData.h2s === undefined ? 0 : this.latestData.h2s;
+  async getH2Slevel() {
+    let currentValue = 0;
+    if (this.latestData.h2s === undefined || this.latestData.h2s < 0){
+      currentValue = 0;
+    } else if (this.latestData.h2s < 1000) {
+      currentValue = this.latestData.h2s;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getH2Squality(value: CharacteristicValue) {
-    this.platform.log.debug('getH2Squality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.FAIR;
+  async getH2Squality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.h2s === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.h2s < 50){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.h2s < 120){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.h2s < 280){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.h2s < 1000){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getO3level(value: CharacteristicValue) {
-    this.platform.log.debug('getO3level requested');
-    const currentValue = this.latestData.o3 === undefined ? 0 : this.latestData.o3;
+  async getO3level() {
+    let currentValue = 0;
+    if (this.latestData.o3 === undefined || this.latestData.o3 < 0){
+      currentValue = 0;
+    } else if (this.latestData.o3 < 1000) {
+      currentValue = this.latestData.o3;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getO3quality(value: CharacteristicValue) {
-    this.platform.log.debug('getO3quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.FAIR;
+  async getO3quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.o3 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.o3 < 10){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.o3 < 60){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.o3 < 110){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.o3 < 180){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getSO2level(value: CharacteristicValue) {
-    this.platform.log.debug('getSO2level requested');
-    const currentValue = this.latestData.so2 === undefined ? 0 : this.latestData.so2;
+  async getSO2level() {
+    let currentValue = 0;
+    if (this.latestData.so2 === undefined || this.latestData.so2 < 0){
+      currentValue = 0;
+    } else if (this.latestData.so2 < 1000) {
+      currentValue = this.latestData.so2;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
-  async getSO2quality(value: CharacteristicValue) {
-    this.platform.log.debug('getSO2quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.FAIR;
+  async getSO2quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.so2 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.so2 < 80){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.so2 < 120){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.so2 < 240){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.so2 < 480){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getVOClevel(value: CharacteristicValue) {
-    this.platform.log.debug('getVOClevel requested');
+  async getVOClevel() {
     const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc / 1000;
     return currentValue;
   }
 
-  async getVOCquality(value: CharacteristicValue) {
-    this.platform.log.debug('getVOCquality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+  async getVOCquality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.tvoc === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.tvoc < 500){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.tvoc < 1000){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.tvoc < 1500){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.tvoc < 2500){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getPM2_5level(value: CharacteristicValue) {
-    this.platform.log.debug('getPM2_5level requested');
+  async getPM2_5level() {
     const currentValue = this.latestData.pm2_5 === undefined ? 0 : this.latestData.pm2_5;
     return currentValue;
   }
 
-  async getPM2_5quality(value: CharacteristicValue) {
-    this.platform.log.debug('getPM2_5quality requested');
-    const currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  async getPM2_5quality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.pm2_5 === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.pm2_5 < 5){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.pm2_5 < 15){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.pm2_5 < 25){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.pm2_5 < 50){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
     return currentValue;
   }
 
-  async getPM10level(value: CharacteristicValue) {
-    this.platform.log.debug('getPM10level requested');
+  async getPM10level() {
     const currentValue = this.latestData.pm10 === undefined ? 0 : this.latestData.pm10;
     return currentValue;
   }
 
-  async getAirPressure(value: CharacteristicValue) {
-    this.platform.log.debug('getPressure requested');
+  async getAirPressure() {
     const currentValue = this.latestData.pressure === undefined ? 0 : this.latestData.pressure;
     return currentValue;
   }
 
-  async getNoiseLevel(value: CharacteristicValue) {
-    this.platform.log.debug('getNoiseLevel requested');
+  async getNoiseLevel() {
     const currentValue = this.latestData.sound === undefined ? 0 : this.latestData.sound;
     return currentValue;
   }
 
-
   async getSensorData() {
-    this.platform.log.debug('getSensorData requested');
     // predefine returned object
     const data: DataPacket = {
       health: 0.0,
@@ -789,8 +952,6 @@ export class AirQPlatformAccessory {
   }
 
   async getSensorStatus() {
-    this.platform.log.debug('getSensorStatus requested');
-
     // predefine returned object
     const status: SensorStatus = {
       health: false,
