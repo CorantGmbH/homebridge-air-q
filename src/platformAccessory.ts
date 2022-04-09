@@ -896,6 +896,7 @@ export class AirQPlatformAccessory {
   }
 
   async getSensorData() {
+    this.platform.log.debug('\tRequesting data from', this.displayName);
     // predefine returned object
     const data: DataPacket = {
       health: 0.0,
@@ -940,6 +941,7 @@ export class AirQPlatformAccessory {
   }
 
   async getSensorStatus() {
+    this.platform.log.debug('\tRequesting sensor status from', this.displayName);
     // predefine returned object
     const status: SensorStatus = {
       health: false,
