@@ -33,7 +33,9 @@
     "air-q",
     "air q",
     "air Q",
-    "air"
+    "air q plugin",
+    "air-q plugin",
+    "airq plugin"
   ],
   "dependencies": {
     "crypto-js": "^4.1.1"
