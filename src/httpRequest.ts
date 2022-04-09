@@ -12,7 +12,7 @@ export function performRequest(options, airqpass) {
             new Error(response.statusMessage),
           );
         }
-        const chunks: any[] = [];
+        const chunks: Uint8Array[] = [];
         response.on('data', (chunk) => {
           chunks.push(chunk);
         });
