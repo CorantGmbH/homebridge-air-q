@@ -50,11 +50,6 @@ interface SensorStatus {
   sound: boolean;
 }
 
-/**
- * Platform Accessory
- * An instance of this class is created for each accessory your platform registers
- * Each accessory may expose multiple services of different service types.
- */
 export class AirQPlatformAccessory {
   private temperatureSensorService?: Service;
   private humidtySensorService?: Service;
@@ -83,15 +78,6 @@ export class AirQPlatformAccessory {
   private latestData: DataPacket;
   private sensorStatusActive: SensorStatus;
   private sensorList: Array<string>;
-
-  /**
-   * These are just used to create a working example
-   * You should implement your own code to track the state of your accessory
-   */
-  private exampleStates = {
-    On: false,
-    Brightness: 100,
-  };
 
   constructor(
     private readonly platform: AirQPlatform,
@@ -900,12 +886,12 @@ export class AirQPlatformAccessory {
   }
 
   async getAirPressure() {
-    const currentValue = this.latestData.pressure === undefined ? 0 : this.latestData.pressure;
+    const currentValue = this.latestData.pressure === undefined ? 400 : this.latestData.pressure;
     return currentValue;
   }
 
   async getNoiseLevel() {
-    const currentValue = this.latestData.sound === undefined ? 0 : this.latestData.sound;
+    const currentValue = this.latestData.sound === undefined ? 13 : this.latestData.sound;
     return currentValue;
   }
 
@@ -941,6 +927,8 @@ export class AirQPlatformAccessory {
       path: '/data',
       method: 'GET',
     }, this.accessory.context.device.password);
+
+    // DataPacket object with correct values
     if (airqDataResponse) {
       for (const key in data){
         if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
@@ -982,6 +970,8 @@ export class AirQPlatformAccessory {
       path: '/data',
       method: 'GET',
     }, this.accessory.context.device.password);
+
+    // SensorStatus object with correct states
     if (airqDataResponse) {
       for (const key in status){
         if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
