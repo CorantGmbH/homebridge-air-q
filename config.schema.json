@@ -14,72 +14,39 @@
         "default": "air-Q",
         "description": "Plugin name as displayed in the homebridge log."
       },
-      "serialNumber1": {
-        "title": "Serial number (first five digits) of your air-Q",
-        "type": "string",
+      "airqList": {
+        "title": "Your air-Qs",
+        "type": "array",
+        "items": {
+          "name": "Device",
+          "type": "object",
+          "properties": {
+            "serialNumber": {
+              "title": "Serial number (first five digits) of your air-Q",
+              "type": "string",
+              "required": true,
+              "maxLength": 5,
+              "minLength": 5,
+              "placeholder": "a1b3d",
+              "description": "Will be used to retrieve the IP of the air-Q device by MDNS."
+            },
+            "password": {
+              "title": "Password of this air-Q",
+              "type": "string",
+              "required": true,
+              "minLength": 8,
+              "placeholder": "airqsetup",
+              "description": "The password you gave this air-Q during its configuration."
+            }
+          }
+        }
+      },
+      "updateInterval": {
+        "title": "Update Interval",
+        "type": "integer",
+        "default": 10,
         "required": true,
-        "maxLength": 5,
-        "minLength": 5,
-        "description": "Will be used to retrieve the IP of the air-Q device by MDNS."
-      },
-      "password1": {
-        "title": "Password of this air-Q",
-        "type": "string",
-        "required": true,
-        "minLength": 8,
-        "description": "Be aware that you have to install 'crypto-js' with the command 'npm install crypto-js' before this will work!"
-      },
-      "serialNumber2": {
-        "title": "Serial number (first five digits) of your 2nd air-Q",
-        "type": "string",
-        "required": false,
-        "maxLength": 5,
-        "minLength": 5
-      },
-      "password2": {
-        "title": "Password of 2nd air-Q",
-        "type": "string",
-        "required": false,
-        "minLength": 8
-      },
-      "serialNumber3": {
-        "title": "Serial number (first five digits) of your 3rd air-Q",
-        "type": "string",
-        "required": false,
-        "maxLength": 5,
-        "minLength": 5
-      },
-      "password3": {
-        "title": "Password of 3rd air-Q",
-        "type": "string",
-        "required": false,
-        "minLength": 8
-      },
-      "serialNumber4": {
-        "title": "Serial number (first five digits) of your 4th air-Q",
-        "type": "string",
-        "required": false,
-        "maxLength": 5,
-        "minLength": 5
-      },
-      "password4": {
-        "title": "Password of 4th air-Q",
-        "type": "string",
-        "required": false,
-        "minLength": 8
-      },
-      "serialNumber5": {
-        "title": "Serial number (first five digits) of your 5th air-Q",
-        "type": "string",
-        "required": false,
-        "maxLength": 5,
-        "minLength": 5
-      },
-      "password5": {
-        "title": "Password of 5th air-Q",
-        "type": "string",
-        "required": false,
-        "minLength": 8
+        "description": "The interval (in seconds) at which updates of the sensors are requested from the air-Q devices."
       }
     }
   }
