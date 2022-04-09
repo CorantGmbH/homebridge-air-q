@@ -57,7 +57,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
     browser.on('up', this.foundAirQ.bind(this));
 
-    // Check bonjour again 5 seconds after launch
+    // Check bonjour agains 5 seconds after launch
     setTimeout(() => {
       browser.update();
     }, 5000);
@@ -73,102 +73,107 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       const HOST = mdnsService.host;
       const NAME = mdnsService.txt.devicename;
       const SERIAL = mdnsService.txt.id.substr(0, 10);
-      const SHORTID = mdnsService.txt.id.substr(0, 5).toUpperCase();
+      const SHORTID = mdnsService.txt.id.substr(0, 5);
       const MANUFACTURER = 'Corant GmbH';
 
-      // choose the corresponding password from homebridge plugin configuration
-      // TODO:
-      // -> gehe die konfigurierten short IDs durch und schaue, welche zu SHORTID
-      // passt -> wähle das zugehörige Passwort
-      const PASSWORD = this.config.password1;
+      this.log.debug('Found', mdnsService.txt.device, '"'+NAME+'"; trying to set-up...');
 
-      // connect to this air-Q to retrieve the missing configuration information
-      performRequest({
-        host: mdnsService.host,
-        path: '/config',
-        method: 'GET',
-      },
-      PASSWORD,
-      )
-        .then(response => {
-          if (response) {
-            const DEVICETYPE = response['type'];
-            const FIRMWARE = response['air-Q-Software-Version'].split('_')[2];
-            const HARDWARE = response['air-Q-Software-Version'].split('_')[1];
-            const IP = response['WLAN config']['IP address'];
-            const SENSORLIST = response['sensors'];
+      // choose the corresponding device from homebridge plugin configuration
+      for (const i in this.config.airqList) {
+        if (this.config.airqList[i].serialNumber === SHORTID) {
 
-            this.log.info('Found', mdnsService.txt.device, '"'+NAME+'"');
-            this.log.info('\tmDNS Address:', HOST);
-            this.log.info('\tIP Address:', IP);
-            this.log.info('\tSerial Number:', SERIAL);
-            this.log.info('\tManufacturer:', MANUFACTURER);
-            this.log.info('\tFirmware Revision:', FIRMWARE);
-            this.log.info('\tHardware Revision:', HARDWARE);
-            this.log.info('\tDevice Type:', DEVICETYPE);
+          // set password as defined in user configuration
+          const PASSWORD = this.config.airqList[i].password;
 
-            const device = {
-              displayName: NAME,
-              serialNumber: SERIAL,
-              manufacturer: MANUFACTURER,
-              firmwareRevision: FIRMWARE,
-              hardwareRevision: HARDWARE,
-              deviceType: DEVICETYPE,
-              shortId: SHORTID,
-              ipAddress: IP,
-              sensorList: SENSORLIST,
-              password: PASSWORD,
-            };
+          // connect to this air-Q to retrieve the missing configuration information
+          performRequest({
+            host: mdnsService.host,
+            path: '/config',
+            method: 'GET',
+          },
+          PASSWORD,
+          )
+            .then(response => {
+              if (response) {
+                const DEVICETYPE = response['type'];
+                const FIRMWARE = response['air-Q-Software-Version'].split('_')[2];
+                const HARDWARE = response['air-Q-Software-Version'].split('_')[1];
+                const IP = response['WLAN config']['IP address'];
+                const SENSORLIST = response['sensors'];
 
-            // generate a unique id for the accessory this should be generated from
-            // something globally unique, but constant, for example, the device serial
-            // number or MAC address
-            const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
-            this.log.info('\tUUID:', uuid);
+                this.log.info('Found', mdnsService.txt.device, '"'+NAME+'"');
+                this.log.info('\tmDNS Address:', HOST);
+                this.log.info('\tIP Address:', IP);
+                this.log.info('\tSerial Number:', SERIAL);
+                this.log.info('\tManufacturer:', MANUFACTURER);
+                this.log.info('\tFirmware Revision:', FIRMWARE);
+                this.log.info('\tHardware Revision:', HARDWARE);
+                this.log.info('\tDevice Type:', DEVICETYPE);
 
-            // see if an accessory with the same uuid has already been registered and restored from
-            // the cached devices we stored in the `configureAccessory` method above
-            const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+                const device = {
+                  displayName: NAME,
+                  serialNumber: SERIAL,
+                  manufacturer: MANUFACTURER,
+                  firmwareRevision: FIRMWARE,
+                  hardwareRevision: HARDWARE,
+                  deviceType: DEVICETYPE,
+                  shortId: SHORTID,
+                  ipAddress: IP,
+                  sensorList: SENSORLIST,
+                  password: PASSWORD,
+                };
 
-            if (existingAccessory) {
-              // the accessory already exists
-              this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+                // generate a unique id for the accessory this should be generated from
+                // something globally unique, but constant, for example, the device serial
+                // number or MAC address
+                const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
+                this.log.info('\tUUID:', uuid);
 
-              // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-              existingAccessory.context.device = device;
-              this.api.updatePlatformAccessories([existingAccessory]);
+                // see if an accessory with the same uuid has already been registered and restored from
+                // the cached devices we stored in the `configureAccessory` method above
+                const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-              // create the accessory handler for the restored accessory
-              // this is imported from `platformAccessory.ts`
-              new AirQPlatformAccessory(this, existingAccessory);
+                if (existingAccessory) {
+                  // the accessory already exists
+                  this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
 
-              // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-              // remove platform accessories when no longer present
-              // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-              // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-            } else {
-              // the accessory does not yet exist, so we need to create it
-              this.log.info('Adding new accessory:', device.displayName);
+                  // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+                  existingAccessory.context.device = device;
+                  this.api.updatePlatformAccessories([existingAccessory]);
 
-              // create a new accessory
-              const accessory = new this.api.platformAccessory(device.displayName, uuid);
+                  // create the accessory handler for the restored accessory
+                  // this is imported from `platformAccessory.ts`
+                  new AirQPlatformAccessory(this, existingAccessory);
 
-              // store a copy of the device object in the `accessory.context`
-              // the `context` property can be used to store any data about the accessory you may need
-              accessory.context.device = device;
+                  // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+                  // remove platform accessories when no longer present
+                  // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+                  // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+                } else {
+                  // the accessory does not yet exist, so we need to create it
+                  this.log.info('Adding new accessory:', device.displayName);
 
-              // create the accessory handler for the newly create accessory
-              // this is imported from `platformAccessory.ts`
-              new AirQPlatformAccessory(this, accessory);
+                  // create a new accessory
+                  const accessory = new this.api.platformAccessory(device.displayName, uuid);
 
-              // link the accessory to your platform
-              this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-            }
-          }
-        })
-        .catch(error => {
-          this.log.error(error);
-        });
+                  // store a copy of the device object in the `accessory.context`
+                  // the `context` property can be used to store any data about the accessory you may need
+                  accessory.context.device = device;
+
+                  // create the accessory handler for the newly create accessory
+                  // this is imported from `platformAccessory.ts`
+                  new AirQPlatformAccessory(this, accessory);
+
+                  // link the accessory to your platform
+                  this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+                }
+              }
+            })
+            .catch(error => {
+              this.log.error(error);
+            });
+        }
+      }
     }
   }
 }
