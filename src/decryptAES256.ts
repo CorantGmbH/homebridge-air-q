@@ -1,4 +1,4 @@
-const CryptoJS = require('crypto-js');
+import CryptoJS from 'crypto-js';
 
 export function decrypt(msgb64, airqpass) {
   if (airqpass.length < 32) {
