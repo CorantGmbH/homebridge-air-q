@@ -121,28 +121,32 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
                 if (existingAccessory) {
                   // the accessory already exists
-                  this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+                  // as the bug message "Error: Cannot add a Service with the same UUID '...'
+                  // and subtype '...' as another Service in this Accessory."
+                  // could not be fixed yet, the device is removed from cache and then added again
+                  // as a new device
 
-                  new AirQPlatformAccessory(this, existingAccessory);
+                  this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+                  this.log.debug('Removed existing accessory from cache:', existingAccessory.displayName);
 
-                } else {
-                  // the accessory does not yet exist, so we need to create it
-                  this.log.info('Adding new accessory:', device.displayName);
-
-                  // create a new accessory
-                  const accessory = new this.api.platformAccessory(device.displayName, uuid);
-
-                  // store a copy of the device object in the `accessory.context`
-                  // the `context` property can be used to store any data about the accessory you may need
-                  accessory.context.device = device;
-
-                  // create the accessory handler for the newly create accessory
-                  // this is imported from `platformAccessory.ts`
-                  new AirQPlatformAccessory(this, accessory);
-
-                  // link the accessory to your platform
-                  this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
                 }
+
+                // the accessory does not yet exist, so we need to create it
+                this.log.info('Adding new accessory:', device.displayName);
+
+                // create a new accessory
+                const accessory = new this.api.platformAccessory(device.displayName, uuid);
+
+                // store a copy of the device object in the `accessory.context`
+                // the `context` property can be used to store any data about the accessory you may need
+                accessory.context.device = device;
+
+                // create the accessory handler for the newly create accessory
+                // this is imported from `platformAccessory.ts`
+                new AirQPlatformAccessory(this, accessory);
+
+                // link the accessory to your platform
+                this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
               }
             })
             .catch(error => {
