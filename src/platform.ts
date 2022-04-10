@@ -2,9 +2,8 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { AirQPlatformAccessory } from './platformAccessory';
-
+import Bonjour from 'bonjour-hap';
 import { performRequest } from './httpRequest';
-
 export class AirQPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
@@ -38,8 +37,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
   }
 
   discoverDevices() {
-    const bonjour = require('bonjour-hap')();
-    const browser = bonjour.find({ type: 'http' });
+    const browser = (Bonjour() as any).find({ type: 'http' });
 
     browser.on('up', this.foundAirQ.bind(this));
 
