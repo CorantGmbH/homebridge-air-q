@@ -191,42 +191,38 @@ export class AirQPlatformAccessory {
     }
 
     // add health air quality sensor for health
-    if (this.sensorList.indexOf('health') !== -1) {
-      this.healthSensorService = this.accessory.getService('Health') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `Health ${this.displayName}`, `Health ${this.serialNumber}`);
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getHealth.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-        .onGet(this.getNO2level.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
-        .onGet(this.getO3level.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
-        .onGet(this.getSO2level.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-        .onGet(this.getVOClevel.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
-        .onGet(this.getPM2_5level.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
-        .onGet(this.getPM10level.bind(this));
-      this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getHealthStatus.bind(this));
-    }
+    this.healthSensorService = this.accessory.getService('Health') ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor,
+        `Health ${this.displayName}`, `Health ${this.serialNumber}`);
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(this.getHealth.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+      .onGet(this.getNO2level.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+      .onGet(this.getO3level.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+      .onGet(this.getSO2level.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+      .onGet(this.getVOClevel.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
+      .onGet(this.getPM2_5level.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+      .onGet(this.getPM10level.bind(this));
+    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getHealthStatus.bind(this));
 
     // add performance air quality sensor
-    if (this.sensorList.indexOf('performance') !== -1) {
-      this.performanceSensorService = this.accessory.getService('Performance') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `Performance ${this.displayName}`, `Performance ${this.serialNumber}`);
-      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getPerformance.bind(this));
-      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
-        .onGet(this.getO3level.bind(this));
-      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-        .onGet(this.getVOClevel.bind(this));
-      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getPerformanceStatus.bind(this));
-    }
+    this.performanceSensorService = this.accessory.getService('Performance') ||
+      this.accessory.addService(this.platform.Service.AirQualitySensor,
+        `Performance ${this.displayName}`, `Performance ${this.serialNumber}`);
+    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+      .onGet(this.getPerformance.bind(this));
+    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+      .onGet(this.getO3level.bind(this));
+    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+      .onGet(this.getVOClevel.bind(this));
+    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+      .onGet(this.getPerformanceStatus.bind(this));
 
     // add air quality sensor for O3
     if (this.sensorList.indexOf('o3') !== -1) {
@@ -933,7 +929,7 @@ export class AirQPlatformAccessory {
     if (airqDataResponse) {
       for (const key in data){
         if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
-          data[key] = airqDataResponse[key][0];
+          data[key] = typeof(airqDataResponse[key]) === 'object' ? airqDataResponse[key][0] : airqDataResponse[key];
         }
       }
     }
