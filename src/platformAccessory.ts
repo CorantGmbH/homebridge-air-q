@@ -417,7 +417,7 @@ export class AirQPlatformAccessory {
     // Start auto-refresh status
     setInterval(() => {
       this.updateStates();
-    }, this.updateInterval * 1000 * 120);
+    }, 120 * 1000);
     this.updateStates();
   }
 
