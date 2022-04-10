@@ -6,7 +6,7 @@ on the [Homebridge Platform Plugin Template](https://github.com/homebridge/homeb
 
 ## Plugin Installation
 
-The this plugin was developed to be installed and configured with
+This plugin was developed to be installed and configured with
 [homebridge-config-ui-x](https://www.npmjs.com/package/homebridge-config-ui-x).
 It can be found by searching for `air-Q` in the `Plugins` section.
 
