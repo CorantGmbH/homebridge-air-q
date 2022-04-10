@@ -12,7 +12,7 @@ It can be found by searching for `air-Q` in the `Plugins` section.
 
 ## Working Principle
 
-1. The plugin performs and mDNS scan to find all air-Qs in the connected network.
+1. The plugin performs an mDNS scan to find all air-Qs in the connected network.
 2. For each found device which has also been configured with the air-Q short-ID
    (1st five letters of the serial number) and device password (as configured in
     the air-Q mobile phone App), a HTTP network connection will be established.
