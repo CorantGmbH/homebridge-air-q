@@ -1,5 +1,5 @@
-# Homebridge air-Q
-[![mit license](https://badgen.net/badge/license/MIT/red)](https://github.com/apexad/homebridge-mysmartblinds-bridge/blob/master/LICENSE)
+# Homebridge [air-Q](https://www.air-q.com)
+[![License](https://badgen.net/badge/License/Apache%202.0/blue)](https://github.com/CorantGmbH/homebridge-air-q/blob/master/LICENSE)
 
 This plugin for [Homebridge](https://github.com/homebridge/homebridge) is based
 on the [Homebridge Platform Plugin Template](https://github.com/homebridge/homebridge-plugin-template).
