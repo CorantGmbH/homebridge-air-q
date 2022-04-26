@@ -539,7 +539,7 @@ export class AirQPlatformAccessory {
   }
 
   async getCOlevel() {
-    const currentValue = this.latestData.co === undefined ? 0 : this.latestData.co;
+    const currentValue = this.latestData.co === undefined ? 0 : this.latestData.co / 1.15;
     return currentValue;
   }
 
@@ -831,7 +831,7 @@ export class AirQPlatformAccessory {
   }
 
   async getVOClevel() {
-    const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc / 1000;
+    const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc / 1.88;
     return currentValue;
   }
 
