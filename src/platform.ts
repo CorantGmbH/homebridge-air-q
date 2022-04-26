@@ -69,6 +69,10 @@ export class AirQPlatform implements DynamicPlatformPlugin {
           // set password as defined in user configuration
           const password = this.config.airqList[i].password;
 
+          // derive list of activated sensor from configuration of this device
+          const sensorwish = Object.prototype.hasOwnProperty.call(this.config.airqList[i], 'sensors') ?
+            this.config.airqList[i].sensors : {'configured': false};
+
           // connect to this air-Q to retrieve the missing configuration information
           performRequest({
             host: mdnsService.host,
@@ -104,6 +108,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                   shortId: shortId,
                   ipAddress: ip,
                   sensorList: sensorlist,
+                  sensorWishList: sensorwish,
                   password: password,
                 };
 

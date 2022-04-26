@@ -37,6 +37,118 @@
               "minLength": 8,
               "placeholder": "airqsetup",
               "description": "The password you gave this air-Q during its configuration."
+            },
+            "sensors": {
+              "title": "Sensors made available to Homebridge",
+              "type": "object",
+              "expandable": true,
+              "properties": {
+                "temperatureSensor": {
+                  "title": "Temperature",
+                  "type": "boolean",
+                  "default": true
+                },
+                "humidtySensor": {
+                  "title": "Humidity",
+                  "type": "boolean",
+                  "default": true
+                },
+                "co2Sensor": {
+                  "title": "CO2",
+                  "type": "boolean",
+                  "default": true
+                },
+                "no2Sensor": {
+                  "title": "NO2",
+                  "type": "boolean",
+                  "default": true
+                },
+                "so2Sensor": {
+                  "title": "SO2",
+                  "type": "boolean",
+                  "default": true
+                },
+                "o3Sensor": {
+                  "title": "O3",
+                  "type": "boolean",
+                  "default": true
+                },
+                "h2sSensor": {
+                  "title": "H2S",
+                  "type": "boolean",
+                  "default": true
+                },
+                "vocSensor": {
+                  "title": "VOC",
+                  "type": "boolean",
+                  "default": true
+                },
+                "coSensor": {
+                  "title": "CO",
+                  "type": "boolean",
+                  "default": true
+                },
+                "ch2oSensor": {
+                  "title": "CH2O",
+                  "type": "boolean",
+                  "default": true
+                },
+                "nh3Sensor": {
+                  "title": "NH3",
+                  "type": "boolean",
+                  "default": true
+                },
+                "cl2Sensor": {
+                  "title": "Cl2",
+                  "type": "boolean",
+                  "default": true
+                },
+                "h2Sensor": {
+                  "title": "H2 as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "ch4Sensor": {
+                  "title": "CH4 as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "c3h8Sensor": {
+                  "title": "C3H8 as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "pmSensor": {
+                  "title": "Particulates",
+                  "type": "boolean",
+                  "default": true
+                },
+                "healthSensor": {
+                  "title": "air-Q health index",
+                  "type": "boolean",
+                  "default": true
+                },
+                "performanceSensor": {
+                  "title": "air-Q performance index",
+                  "type": "boolean",
+                  "default": true
+                },
+                "smokeSensor": {
+                  "title": "Smoke sensor derived from particulates",
+                  "type": "boolean",
+                  "default": true
+                },
+                "airPressure": {
+                  "title": "Air pressure disguised as light sensor",
+                  "type": "boolean",
+                  "default": true
+                },
+                "noiseSensor": {
+                  "title": "Noise sensor disguised as light sensor",
+                  "type": "boolean",
+                  "default": true
+                }
+              }
             }
           }
         }

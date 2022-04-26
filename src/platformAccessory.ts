@@ -78,6 +78,7 @@ export class AirQPlatformAccessory {
   private latestData: DataPacket;
   private sensorStatusActive: SensorStatus;
   private sensorList: Array<string>;
+  private sensorWishList: Record<string, boolean>;
 
   constructor(
     private readonly platform: AirQPlatform,
@@ -86,6 +87,7 @@ export class AirQPlatformAccessory {
     this.displayName = this.accessory.context.device.displayName;
     this.serialNumber = this.accessory.context.device.serialNumber;
     this.sensorList = this.accessory.context.device.sensorList;
+    this.sensorWishList = this.accessory.context.device.sensorWishList;
     this.updateInterval = parseInt(this.platform.config.updateInterval) || 10;
     this.platform.log.info(`[${this.displayName}] Update Interval:`, this.updateInterval, 's');
 
@@ -143,268 +145,331 @@ export class AirQPlatformAccessory {
     this.updateData();
 
     // add temperature sensor
-    if (this.sensorList.indexOf('temperature') !== -1) {
-      this.temperatureSensorService = this.accessory.getService('Temperature') ||
-        this.accessory.addService(this.platform.Service.TemperatureSensor,
-          `Temperature ${this.displayName}`, `Temperature ${this.serialNumber}`);
-      this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-        .onGet(this.getTemperature.bind(this));
-      this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getTemperatureStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'temperatureSensor')) ||
+      this.sensorWishList.temperatureSensor === true) {
+      if (this.sensorList.indexOf('temperature') !== -1) {
+        this.temperatureSensorService = this.accessory.getService('Temperature') ||
+          this.accessory.addService(this.platform.Service.TemperatureSensor,
+            `Temperature ${this.displayName}`, `Temperature ${this.serialNumber}`);
+        this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+          .onGet(this.getTemperature.bind(this));
+        this.temperatureSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getTemperatureStatus.bind(this));
+      }
     }
 
     // add humidity sensor
-    if (this.sensorList.indexOf('humidity') !== -1) {
-      this.humidtySensorService = this.accessory.getService('Humidity') ||
-        this.accessory.addService(this.platform.Service.HumiditySensor,
-          `Humidity ${this.displayName}`, `Humidity ${this.serialNumber}`);
-      this.humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
-        .onGet(this.getHumidity.bind(this));
-      this.humidtySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getHumidityStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'humidtySensor')) ||
+      this.sensorWishList.humidtySensor === true) {
+      if (this.sensorList.indexOf('humidity') !== -1) {
+        this.humidtySensorService = this.accessory.getService('Humidity') ||
+          this.accessory.addService(this.platform.Service.HumiditySensor,
+            `Humidity ${this.displayName}`, `Humidity ${this.serialNumber}`);
+        this.humidtySensorService.getCharacteristic(this.platform.Characteristic.CurrentRelativeHumidity)
+          .onGet(this.getHumidity.bind(this));
+        this.humidtySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getHumidityStatus.bind(this));
+      }
     }
 
     // add CO2 sensor
-    if (this.sensorList.indexOf('co2') !== -1) {
-      this.co2SensorService = this.accessory.getService('CO2') ||
-        this.accessory.addService(this.platform.Service.CarbonDioxideSensor,
-          `CO2 ${this.displayName}`, `CO2 ${this.serialNumber}`);
-      this.co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideLevel)
-        .onGet(this.getCO2level.bind(this));
-      this.co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideDetected)
-        .onGet(this.getCO2detected.bind(this));
-      this.co2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getCO2Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'co2Sensor')) ||
+      this.sensorWishList.co2Sensor === true) {
+      if (this.sensorList.indexOf('co2') !== -1) {
+        this.co2SensorService = this.accessory.getService('CO2') ||
+          this.accessory.addService(this.platform.Service.CarbonDioxideSensor,
+            `CO2 ${this.displayName}`, `CO2 ${this.serialNumber}`);
+        this.co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideLevel)
+          .onGet(this.getCO2level.bind(this));
+        this.co2SensorService.getCharacteristic(this.platform.Characteristic.CarbonDioxideDetected)
+          .onGet(this.getCO2detected.bind(this));
+        this.co2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getCO2Status.bind(this));
+      }
     }
 
     // add CO sensor
-    if (this.sensorList.indexOf('co') !== -1) {
-      this.coSensorService = this.accessory.getService('CO') ||
-        this.accessory.addService(this.platform.Service.CarbonMonoxideSensor,
-          `CO ${this.displayName}`, `CO ${this.serialNumber}`);
-      this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideLevel)
-        .onGet(this.getCOlevel.bind(this));
-      this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
-        .onGet(this.getCOdetected.bind(this));
-      this.coSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getCOStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'coSensor')) ||
+      this.sensorWishList.coSensor === true) {
+      if (this.sensorList.indexOf('co') !== -1) {
+        this.coSensorService = this.accessory.getService('CO') ||
+          this.accessory.addService(this.platform.Service.CarbonMonoxideSensor,
+            `CO ${this.displayName}`, `CO ${this.serialNumber}`);
+        this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideLevel)
+          .onGet(this.getCOlevel.bind(this));
+        this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected)
+          .onGet(this.getCOdetected.bind(this));
+        this.coSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getCOStatus.bind(this));
+      }
     }
 
     // add health air quality sensor for health
-    this.healthSensorService = this.accessory.getService('Health') ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor,
-        `Health ${this.displayName}`, `Health ${this.serialNumber}`);
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-      .onGet(this.getHealth.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-      .onGet(this.getNO2level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
-      .onGet(this.getO3level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
-      .onGet(this.getSO2level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-      .onGet(this.getVOClevel.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
-      .onGet(this.getPM2_5level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
-      .onGet(this.getPM10level.bind(this));
-    this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getHealthStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'healthSensor')) ||
+      this.sensorWishList.healthSensor === true) {
+      this.healthSensorService = this.accessory.getService('Health') ||
+        this.accessory.addService(this.platform.Service.AirQualitySensor,
+          `Health ${this.displayName}`, `Health ${this.serialNumber}`);
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+        .onGet(this.getHealth.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+        .onGet(this.getNO2level.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+        .onGet(this.getO3level.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+        .onGet(this.getSO2level.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+        .onGet(this.getVOClevel.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
+        .onGet(this.getPM2_5level.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+        .onGet(this.getPM10level.bind(this));
+      this.healthSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+        .onGet(this.getHealthStatus.bind(this));
+    }
 
     // add performance air quality sensor
-    this.performanceSensorService = this.accessory.getService('Performance') ||
-      this.accessory.addService(this.platform.Service.AirQualitySensor,
-        `Performance ${this.displayName}`, `Performance ${this.serialNumber}`);
-    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-      .onGet(this.getPerformance.bind(this));
-    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
-      .onGet(this.getO3level.bind(this));
-    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-      .onGet(this.getVOClevel.bind(this));
-    this.performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-      .onGet(this.getPerformanceStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'performanceSensor')) ||
+      this.sensorWishList.performanceSensor === true) {
+      this.performanceSensorService = this.accessory.getService('Performance') ||
+        this.accessory.addService(this.platform.Service.AirQualitySensor,
+          `Performance ${this.displayName}`, `Performance ${this.serialNumber}`);
+      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+        .onGet(this.getPerformance.bind(this));
+      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+        .onGet(this.getO3level.bind(this));
+      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+        .onGet(this.getVOClevel.bind(this));
+      this.performanceSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+        .onGet(this.getPerformanceStatus.bind(this));
+    }
 
     // add air quality sensor for O3
-    if (this.sensorList.indexOf('o3') !== -1) {
-      this.o3SensorService = this.accessory.getService('O3') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `O3 ${this.displayName}`, `O3 ${this.serialNumber}`);
-      this.o3SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getO3quality.bind(this));
-      this.o3SensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
-        .onGet(this.getO3level.bind(this));
-      this.o3SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getO3Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'o3Sensor')) ||
+      this.sensorWishList.o3Sensor === true) {
+      if (this.sensorList.indexOf('o3') !== -1) {
+        this.o3SensorService = this.accessory.getService('O3') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `O3 ${this.displayName}`, `O3 ${this.serialNumber}`);
+        this.o3SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getO3quality.bind(this));
+        this.o3SensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
+          .onGet(this.getO3level.bind(this));
+        this.o3SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getO3Status.bind(this));
+      }
     }
 
     // add air quality sensor for H2S
-    if (this.sensorList.indexOf('h2s') !== -1) {
-      this.h2sSensorService = this.accessory.getService('H2S') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `H2S ${this.displayName}`, `H2S ${this.serialNumber}`);
-      this.h2sSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getH2Squality.bind(this));
-      this.h2sSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
-        .onGet(this.getH2Slevel.bind(this));
-      this.h2sSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getH2SStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'h2sSensor')) ||
+      this.sensorWishList.h2sSensor === true) {
+      if (this.sensorList.indexOf('h2s') !== -1) {
+        this.h2sSensorService = this.accessory.getService('H2S') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `H2S ${this.displayName}`, `H2S ${this.serialNumber}`);
+        this.h2sSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getH2Squality.bind(this));
+        this.h2sSensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+          .onGet(this.getH2Slevel.bind(this));
+        this.h2sSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getH2SStatus.bind(this));
+      }
     }
 
     // add air quality sensor for SO2
-    if (this.sensorList.indexOf('so2') !== -1) {
-      this.so2SensorService = this.accessory.getService('SO2') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `SO2 ${this.displayName}`, `SO2 ${this.serialNumber}`);
-      this.so2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getSO2quality.bind(this));
-      this.so2SensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
-        .onGet(this.getSO2level.bind(this));
-      this.so2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getSO2Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'so2Sensor')) ||
+      this.sensorWishList.so2Sensor === true) {
+      if (this.sensorList.indexOf('so2') !== -1) {
+        this.so2SensorService = this.accessory.getService('SO2') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `SO2 ${this.displayName}`, `SO2 ${this.serialNumber}`);
+        this.so2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getSO2quality.bind(this));
+        this.so2SensorService.getCharacteristic(this.platform.Characteristic.SulphurDioxideDensity)
+          .onGet(this.getSO2level.bind(this));
+        this.so2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getSO2Status.bind(this));
+      }
     }
 
     // add air quality sensor for NO2
-    if (this.sensorList.indexOf('no2') !== -1) {
-      this.no2SensorService = this.accessory.getService('NO2') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `NO2 ${this.displayName}`, `NO2 ${this.serialNumber}`);
-      this.no2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getNO2quality.bind(this));
-      this.no2SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-        .onGet(this.getNO2level.bind(this));
-      this.no2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getNO2Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'no2Sensor')) ||
+      this.sensorWishList.no2Sensor === true) {
+      if (this.sensorList.indexOf('no2') !== -1) {
+        this.no2SensorService = this.accessory.getService('NO2') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `NO2 ${this.displayName}`, `NO2 ${this.serialNumber}`);
+        this.no2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getNO2quality.bind(this));
+        this.no2SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getNO2level.bind(this));
+        this.no2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getNO2Status.bind(this));
+      }
     }
 
     // add air quality sensor for NH3
-    if (this.sensorList.indexOf('nh3_MR100') !== -1) {
-      this.nh3SensorService = this.accessory.getService('NH3') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `NH3 ${this.displayName}`, `NH3 ${this.serialNumber}`);
-      this.nh3SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getNH3quality.bind(this));
-      this.nh3SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-        .onGet(this.getNH3level.bind(this));
-      this.nh3SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getNH3Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'nh3Sensor')) ||
+      this.sensorWishList.nh3Sensor === true) {
+      if (this.sensorList.indexOf('nh3_MR100') !== -1) {
+        this.nh3SensorService = this.accessory.getService('NH3') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `NH3 ${this.displayName}`, `NH3 ${this.serialNumber}`);
+        this.nh3SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getNH3quality.bind(this));
+        this.nh3SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getNH3level.bind(this));
+        this.nh3SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getNH3Status.bind(this));
+      }
     }
 
     // add air quality sensor for CH2O
-    if (this.sensorList.indexOf('ch2o_M10') !== -1) {
-      this.ch2oSensorService = this.accessory.getService('CH2O') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `CH2O ${this.displayName}`, `CH2O ${this.serialNumber}`);
-      this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getCH2Oquality.bind(this));
-      this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-        .onGet(this.getCH2Olevel.bind(this));
-      this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getCH2OStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'ch2oSensor')) ||
+      this.sensorWishList.ch2oSensor === true) {
+      if (this.sensorList.indexOf('ch2o_M10') !== -1) {
+        this.ch2oSensorService = this.accessory.getService('CH2O') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `CH2O ${this.displayName}`, `CH2O ${this.serialNumber}`);
+        this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getCH2Oquality.bind(this));
+        this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getCH2Olevel.bind(this));
+        this.ch2oSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getCH2OStatus.bind(this));
+      }
     }
 
     // add air quality sensor for Cl2
-    if (this.sensorList.indexOf('cl2_M20') !== -1) {
-      this.cl2SensorService = this.accessory.getService('Cl2') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `Cl2 ${this.displayName}`, `Cl2 ${this.serialNumber}`);
-      this.cl2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getCl2quality.bind(this));
-      this.cl2SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
-        .onGet(this.getCl2level.bind(this));
-      this.cl2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getCl2Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'cl2Sensor')) ||
+      this.sensorWishList.cl2Sensor === true) {
+      if (this.sensorList.indexOf('cl2_M20') !== -1) {
+        this.cl2SensorService = this.accessory.getService('Cl2') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Cl2 ${this.displayName}`, `Cl2 ${this.serialNumber}`);
+        this.cl2SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getCl2quality.bind(this));
+        this.cl2SensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getCl2level.bind(this));
+        this.cl2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getCl2Status.bind(this));
+      }
     }
 
     // add air quality sensor for VOC
-    if (this.sensorList.indexOf('tvoc') !== -1) {
-      this.vocSensorService = this.accessory.getService('VOC') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `VOC ${this.displayName}`, `VOC ${this.serialNumber}`);
-      this.vocSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getVOCquality.bind(this));
-      this.vocSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
-        .onGet(this.getVOClevel.bind(this));
-      this.vocSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getVOCStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'vocSensor')) ||
+      this.sensorWishList.vocSensor === true) {
+      if (this.sensorList.indexOf('tvoc') !== -1) {
+        this.vocSensorService = this.accessory.getService('VOC') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `VOC ${this.displayName}`, `VOC ${this.serialNumber}`);
+        this.vocSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getVOCquality.bind(this));
+        this.vocSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+          .onGet(this.getVOClevel.bind(this));
+        this.vocSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getVOCStatus.bind(this));
+      }
     }
 
     // add air quality sensor for particulates
-    if (this.sensorList.indexOf('particulates') !== -1) {
-      this.pmSensorService = this.accessory.getService('Particulates') ||
-        this.accessory.addService(this.platform.Service.AirQualitySensor,
-          `Particulates ${this.displayName}`, `Particulates ${this.serialNumber}`);
-      this.pmSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-        .onGet(this.getPM2_5quality.bind(this));
-      this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
-        .onGet(this.getPM2_5level.bind(this));
-      this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
-        .onGet(this.getPM10level.bind(this));
-      this.pmSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getPM2_5Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'pmSensor')) ||
+      this.sensorWishList.pmSensor === true) {
+      if (this.sensorList.indexOf('particulates') !== -1) {
+        this.pmSensorService = this.accessory.getService('Particulates') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Particulates ${this.displayName}`, `Particulates ${this.serialNumber}`);
+        this.pmSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getPM2_5quality.bind(this));
+        this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM2_5Density)
+          .onGet(this.getPM2_5level.bind(this));
+        this.pmSensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+          .onGet(this.getPM10level.bind(this));
+        this.pmSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getPM2_5Status.bind(this));
+      }
 
       // add smoke detector
-      this.smokeSensorService = this.accessory.getService('Smoke') ||
-        this.accessory.addService(this.platform.Service.SmokeSensor,
-          `Smoke ${this.displayName}`, `Smoke ${this.serialNumber}`);
-      this.smokeSensorService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
-        .onGet(this.getSmokeDetected.bind(this));
-      this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getSmokeDetectedStatus.bind(this));
+      if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'smokeSensor')) ||
+        this.sensorWishList.smokeSensor === true) {
+        this.smokeSensorService = this.accessory.getService('Smoke') ||
+          this.accessory.addService(this.platform.Service.SmokeSensor,
+            `Smoke ${this.displayName}`, `Smoke ${this.serialNumber}`);
+        this.smokeSensorService.getCharacteristic(this.platform.Characteristic.SmokeDetected)
+          .onGet(this.getSmokeDetected.bind(this));
+        this.smokeSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getSmokeDetectedStatus.bind(this));
+      }
     }
 
     // add CH4 sensor as leak detector
-    if (this.sensorList.indexOf('ch4_MIPEX') !== -1) {
-      this.ch4SensorService = this.accessory.getService('CH4') ||
-        this.accessory.addService(this.platform.Service.LeakSensor,
-          `CH4 ${this.displayName}`, `CH4 ${this.serialNumber}`);
-      this.ch4SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
-        .onGet(this.getCH4quality.bind(this));
-      this.ch4SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getCH4Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'ch4Sensor')) ||
+      this.sensorWishList.ch4Sensor === true) {
+      if (this.sensorList.indexOf('ch4_MIPEX') !== -1) {
+        this.ch4SensorService = this.accessory.getService('CH4') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `CH4 ${this.displayName}`, `CH4 ${this.serialNumber}`);
+        this.ch4SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getCH4quality.bind(this));
+        this.ch4SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getCH4Status.bind(this));
+      }
     }
 
     // add C3H8 sensor as leak detector
-    if (this.sensorList.indexOf('c3h8_MIPEX') !== -1) {
-      this.c3h8SensorService = this.accessory.getService('C3H8') ||
-        this.accessory.addService(this.platform.Service.LeakSensor,
-          `C3H8 ${this.displayName}`, `C3H8 ${this.serialNumber}`);
-      this.c3h8SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
-        .onGet(this.getC3H8quality.bind(this));
-      this.c3h8SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getC3H8Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'c3h8Sensor')) ||
+      this.sensorWishList.c3h8Sensor === true) {
+      if (this.sensorList.indexOf('c3h8_MIPEX') !== -1) {
+        this.c3h8SensorService = this.accessory.getService('C3H8') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `C3H8 ${this.displayName}`, `C3H8 ${this.serialNumber}`);
+        this.c3h8SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getC3H8quality.bind(this));
+        this.c3h8SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getC3H8Status.bind(this));
+      }
     }
 
     // add H2 sensor as leak detector
-    if (this.sensorList.indexOf('h2_M1000') !== -1) {
-      this.h2SensorService = this.accessory.getService('H2') ||
-        this.accessory.addService(this.platform.Service.LeakSensor,
-          `H2 ${this.displayName}`, `H2 ${this.serialNumber}`);
-      this.h2SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
-        .onGet(this.getH2quality.bind(this));
-      this.h2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getH2Status.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'h2Sensor')) ||
+      this.sensorWishList.h2Sensor === true) {
+      if (this.sensorList.indexOf('h2_M1000') !== -1) {
+        this.h2SensorService = this.accessory.getService('H2') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `H2 ${this.displayName}`, `H2 ${this.serialNumber}`);
+        this.h2SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getH2quality.bind(this));
+        this.h2SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getH2Status.bind(this));
+      }
     }
 
     // add noise sensor as light sensor
-    if (this.sensorList.indexOf('sound') !== -1) {
-      this.noiseSensorService = this.accessory.getService('Noise') ||
-        this.accessory.addService(this.platform.Service.LightSensor,
-          `Noise ${this.displayName}`, `Noise ${this.serialNumber}`);
-      this.noiseSensorService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-        .onGet(this.getNoiseLevel.bind(this));
-      this.noiseSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getNoiseStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'noiseSensor')) ||
+      this.sensorWishList.noiseSensor === true) {
+      if (this.sensorList.indexOf('sound') !== -1) {
+        this.noiseSensorService = this.accessory.getService('Noise') ||
+          this.accessory.addService(this.platform.Service.LightSensor,
+            `Noise ${this.displayName}`, `Noise ${this.serialNumber}`);
+        this.noiseSensorService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+          .onGet(this.getNoiseLevel.bind(this));
+        this.noiseSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getNoiseStatus.bind(this));
+      }
     }
 
     // add pressure sensor as light sensor
-    if (this.sensorList.indexOf('pressure') !== -1) {
-      this.airPressureService = this.accessory.getService('Air Pressure') ||
-        this.accessory.addService(this.platform.Service.LightSensor,
-          `Air Pressure ${this.displayName}`, `Air Pressure ${this.serialNumber}`);
-      this.airPressureService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
-        .onGet(this.getAirPressure.bind(this));
-      this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
-        .onGet(this.getPressureStatus.bind(this));
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'airPressure')) ||
+      this.sensorWishList.airPressure === true) {
+      if (this.sensorList.indexOf('pressure') !== -1) {
+        this.airPressureService = this.accessory.getService('Air Pressure') ||
+          this.accessory.addService(this.platform.Service.LightSensor,
+            `Air Pressure ${this.displayName}`, `Air Pressure ${this.serialNumber}`);
+        this.airPressureService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+          .onGet(this.getAirPressure.bind(this));
+        this.airPressureService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getPressureStatus.bind(this));
+      }
     }
 
 
