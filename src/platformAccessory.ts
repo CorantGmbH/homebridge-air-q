@@ -831,7 +831,14 @@ export class AirQPlatformAccessory {
   }
 
   async getVOClevel() {
-    const currentValue = this.latestData.tvoc === undefined ? 0 : this.latestData.tvoc / 1.88;
+    let currentValue = 0;
+    if (this.latestData.tvoc === undefined || this.latestData.tvoc < 0){
+      currentValue = 0;
+    } else if (this.latestData.tvoc < 1000) {
+      currentValue = this.latestData.tvoc / 1.88;
+    } else {
+      currentValue = 1000;
+    }
     return currentValue;
   }
 
