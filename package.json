@@ -1,7 +1,7 @@
 {
   "displayName": "air-Q",
   "name": "homebridge-air-q",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "This plugin provides support for the air-Q air analyzer.",
   "license": "Apache-2.0",
   "repository": {
@@ -37,6 +37,7 @@
     "airq plugin"
   ],
   "dependencies": {
+    "axios": "^0.27.1",
     "bonjour-hap": "^3.6.3",
     "crypto-js": "^4.1.1"
   },

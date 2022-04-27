@@ -1,7 +1,9 @@
 import { Service, PlatformAccessory } from 'homebridge';
 
 import { AirQPlatform } from './platform';
-import { performRequest } from './httpRequest';
+
+import { decrypt } from './decryptAES256';
+import axios from 'axios';
 
 interface DataPacket {
   health: number;
@@ -133,7 +135,6 @@ export class AirQPlatformAccessory {
       h2_M1000: false,
       nh3_MR100: false,
     };
-    this.updateStates();
 
     // get initial data packet
     this.latestData = {
@@ -478,12 +479,6 @@ export class AirQPlatformAccessory {
       this.updateData();
     }, this.updateInterval * 1000);
     this.updateData();
-
-    // Start auto-refresh status
-    setInterval(() => {
-      this.updateStates();
-    }, 120 * 1000);
-    this.updateStates();
   }
 
   async getTemperatureStatus() {
@@ -963,7 +958,7 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
-  async getSensorData() {
+  async getSensorData(): Promise<[DataPacket, SensorStatus]> {
     this.platform.log.debug('\tRequesting data from', this.displayName);
     // predefine returned object
     const data: DataPacket = {
@@ -990,27 +985,6 @@ export class AirQPlatformAccessory {
       nh3_MR100: 0.0,
     };
 
-    // Open connection to air-Q
-    const airqDataResponse = await performRequest({
-      host: this.accessory.context.device.ipAddress,
-      path: '/data',
-      method: 'GET',
-    }, this.accessory.context.device.password);
-
-    // DataPacket object with correct values
-    if (airqDataResponse) {
-      for (const key in data){
-        if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
-          data[key] = typeof(airqDataResponse[key]) === 'object' ? airqDataResponse[key][0] : airqDataResponse[key];
-        }
-      }
-    }
-    return data;
-  }
-
-  async getSensorStatus() {
-    this.platform.log.debug('\tRequesting sensor status from', this.displayName);
-    // predefine returned object
     const status: SensorStatus = {
       health: false,
       performance: false,
@@ -1034,31 +1008,29 @@ export class AirQPlatformAccessory {
       nh3_MR100: false,
     };
 
-    // Open connection to air-Q
-    const airqDataResponse = await performRequest({
-      host: this.accessory.context.device.ipAddress,
-      path: '/data',
-      method: 'GET',
-    }, this.accessory.context.device.password);
+    try {
+      // Open connection to air-Q
+      const resp = await axios.get('http://'+this.accessory.context.device.ipAddress+'/data');
+      const airqDataResponse = decrypt(resp.data.content, this.accessory.context.device.password);
 
-    // SensorStatus object with correct states
-    if (airqDataResponse) {
-      for (const key in status){
-        if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
-          status[key] = true;
+      // DataPacket object with correct values
+      if (airqDataResponse) {
+        for (const key in data){
+          if (Object.prototype.hasOwnProperty.call(airqDataResponse, key)){
+            status[key] = true;
+            data[key] = typeof(airqDataResponse[key]) === 'object' ? airqDataResponse[key][0] : airqDataResponse[key];
+          }
         }
       }
+      return [data, status];
+    } catch (err) {
+      this.platform.log.debug('\tConnection to', this.displayName, 'lost');
+      return [data, status];
     }
-    return status;
   }
 
   async updateData() {
-    this.latestData = await this.getSensorData();
-    return true;
-  }
-
-  async updateStates() {
-    this.sensorStatusActive = await this.getSensorStatus();
+    [this.latestData, this.sensorStatusActive] = await this.getSensorData();
     return true;
   }
 }
