@@ -1,5 +1,6 @@
 # Homebridge [air-Q](https://www.air-q.com)
 [![License](https://badgen.net/badge/License/Apache%202.0/blue)](https://github.com/CorantGmbH/homebridge-air-q/blob/master/LICENSE)
+<a href="https://www.npmjs.com/package/homebridge-air-q"><img title="npm downloads" src="https://badgen.net/npm/dt/homebridge-air-q"></a>
 
 This plugin for [Homebridge](https://github.com/homebridge/homebridge) is based
 on the [Homebridge Platform Plugin Template](https://github.com/homebridge/homebridge-plugin-template).
@@ -18,10 +19,8 @@ It can be found by searching for `air-Q` in the `Plugins` section.
     the air-Q mobile phone App), a HTTP network connection will be established.
 3. Each device will be initialized depending on the sensor list found in the
    retrieved device configuration.
-4. If a sensor is still in warm-up phase, it will be marked as `inactive`. The
-   sensor state will be updated every 120 seconds by a data request to this air-Q.
-5. Live measured data will be requested every 10 seconds.
-6. Many of air-Q's sensors are not supported by the HomeKit specification. To make
+4. Live measured data will be requested every 10 seconds.
+5. Many of air-Q's sensors are not supported by the HomeKit specification. To make
    them accessible anyways, they are *disguised* as either *air quality sensors*
    each by its own (health and performance index, Ozone, Hydrogen Sulfide,
    Sulfur Dioxide, Nitrogen Dioxide, Ammonia, Formaldehyde, Chlorine, VOCs,
