@@ -1,4 +1,5 @@
 # Homebridge [air-Q](https://www.air-q.com)
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![License](https://badgen.net/badge/License/Apache%202.0/blue)](https://github.com/CorantGmbH/homebridge-air-q/blob/master/LICENSE)
 <a href="https://www.npmjs.com/package/homebridge-air-q"><img title="npm downloads" src="https://badgen.net/npm/dt/homebridge-air-q"></a>
 
