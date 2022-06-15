@@ -59,6 +59,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       const serial = mdnsService.txt.id.substr(0, 10);
       const shortId = mdnsService.txt.id.substr(0, 5);
       const manufacturer = 'Corant GmbH';
+      const ip = mdnsService.referer['address'];
 
       this.log.debug('Found', mdnsService.txt.device, '"'+name+'"; trying to set-up...');
 
@@ -75,7 +76,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
           // connect to this air-Q to retrieve the missing configuration information
           performRequest({
-            host: mdnsService.host,
+            host: ip,
             path: '/config',
             method: 'GET',
           },
@@ -86,7 +87,6 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 const deviceType = response['type'];
                 const firmware = response['air-Q-Software-Version'].split('_')[2];
                 const hardware = response['air-Q-Software-Version'].split('_')[1];
-                const ip = response['WLAN config']['IP address'];
                 const sensorlist = response['sensors'];
 
                 this.log.info('Found', mdnsService.txt.device, '"'+name+'"');
