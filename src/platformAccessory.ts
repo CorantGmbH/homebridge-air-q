@@ -349,32 +349,6 @@ export class AirQPlatformAccessory {
       }
     }
 
-    // add air quality sensor for PM10
-    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'pm10Sensor')) ||
-      this.sensorWishList.pm10Sensor === true) {
-      if (this.sensorList.indexOf('pm10') !== -1) {
-        this.pm10SensorService = this.accessory.getService('PM10') ||
-          this.accessory.addService(this.platform.Service.AirQualitySensor,
-            `PM10 ${this.displayName}`, `PM10 ${this.serialNumber}`);
-        this.pm10SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-          .onGet(this.getPM10quality.bind(this));
-        this.pm10SensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
-          .onGet(this.getPM10level.bind(this));
-        this.pm10SensorService.getCharacteristic(this
-
-    // add air quality sensor for co
-    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'coSensor')) ||
-      this.sensorWishList.coSensor === true) {
-      if (this.sensorList.indexOf('co') !== -1) {
-        this.coSensorService = this.accessory.getService('CO') ||
-          this.accessory.addService(this.platform.Service.AirQualitySensor,
-            `CO ${this.displayName}`, `CO ${this.serialNumber}`);
-        this.coSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
-          .onGet(this.getCOquality.bind(this));
-        this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDensity)
-          .onGet(this.getCOlevel.bind(this));
-        this.coSensorService.get
-
     // add air quality sensor for NH3
     if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'nh3Sensor')) ||
       this.sensorWishList.nh3Sensor === true) {
@@ -976,23 +950,23 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
-async getN2Oquality() {
-  let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
-  if (this.latestData.n2o === undefined){
-    currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
-  } else if (this.latestData.n2o/1000 < 10){
-    currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
-  } else if (this.latestData.n2o/1000 < 60){
-    currentValue = this.platform.Characteristic.AirQuality.GOOD;
-  } else if (this.latestData.n2o/1000 < 110){
-    currentValue = this.platform.Characteristic.AirQuality.FAIR;
-  } else if (this.latestData.n2o/1000 < 180){
-    currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
-  } else {
-    currentValue = this.platform.Characteristic.AirQuality.POOR;
+  async getN2Oquality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.n2o === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.n2o/1000 < 10){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.n2o/1000 < 60){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.n2o/1000 < 110){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.n2o/1000 < 180){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
+    return currentValue;
   }
-  return currentValue;
-}
 
   async getRadonlevel() {
     let currentValue = 0;
