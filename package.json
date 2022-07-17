@@ -23,8 +23,8 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
+    "homebridge",
     "homebridge-plugin",
-    "air-q-plugin",
     "air-Q",
     "air",
     "airQ",
@@ -32,9 +32,8 @@
     "air-q",
     "air q",
     "air Q",
-    "air q plugin",
-    "air-q plugin",
-    "airq plugin"
+    "Smart Home",
+    "home automation"
   ],
   "dependencies": {
     "axios": "^0.27.1",
@@ -51,5 +50,16 @@
     "rimraf": "^3.0.2",
     "ts-node": "^10.3.0",
     "typescript": "^4.4.4"
+  },
+  "author": {
+    "name": "Daniel Lehmann",
+    "email": "daniel.lehmann@air-q.com",
+    "url": "https://www.air-q.com",
+    "github": "https://github.com/CorantGmbH",
+    "twitter": "https://twitter.com/airq_sensor",
+    "linkedin": "https://www.linkedin.com/company/corant-gmbh/",
+    "facebook": "https://www.facebook.com/airQ.sensor/",
+    "instagram": "https://www.instagram.com/airq.sensor/",
+    "youtube": "https://www.youtube.com/c/airQsensor"
   }
 }
