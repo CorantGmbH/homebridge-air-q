@@ -27,6 +27,8 @@ interface DataPacket {
   h2s?: number;
   tvoc?: number;
   sound?: number;
+  n2o?: number;
+  radon?: number;
 }
 
 interface SensorStatus {
@@ -50,6 +52,8 @@ interface SensorStatus {
   pressure: boolean;
   tvoc: boolean;
   sound: boolean;
+  n2o: boolean;
+  radon: boolean;
 }
 
 export class AirQPlatformAccessory {
@@ -74,6 +78,8 @@ export class AirQPlatformAccessory {
   private smokeSensorService?: Service;
   private airPressureService?: Service;
   private noiseSensorService?: Service;
+  private n2oSensorService?: Service;
+  private radonSensorService?: Service;
   private displayName: string;
   private serialNumber: string;
   private updateInterval: number;
@@ -134,6 +140,8 @@ export class AirQPlatformAccessory {
       c3h8_MIPEX: false,
       h2_M1000: false,
       nh3_MR100: false,
+      n2o: false,
+      radon: false,
     };
 
     // get initial data packet
@@ -308,6 +316,64 @@ export class AirQPlatformAccessory {
           .onGet(this.getNO2Status.bind(this));
       }
     }
+
+    // add air quality sensor for N2O
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'n2oSensor')) ||
+      this.sensorWishList.n2oSensor === true) {
+      if (this.sensorList.indexOf('n2o') !== -1) {
+        this.n2oSensorService = this.accessory.getService('N2O') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `N2O ${this.displayName}`, `N2O ${this.serialNumber}`);
+        this.n2oSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getN2Oquality.bind(this));
+        this.n2oSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getN2Olevel.bind(this));
+        this.n2oSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getN2OStatus.bind(this));
+      }
+    }
+
+    // add air quality sensor for Radon
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'radonSensor')) ||
+      this.sensorWishList.radonSensor === true) {
+      if (this.sensorList.indexOf('radon') !== -1) {
+        this.radonSensorService = this.accessory.getService('Radon') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Radon ${this.displayName}`, `Radon ${this.serialNumber}`);
+        this.radonSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getRadonquality.bind(this));
+        this.radonSensorService.getCharacteristic(this.platform.Characteristic.RadonDensity)
+          .onGet(this.getRadonlevel.bind(this));
+        this.radonSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getRadonStatus.bind(this));
+      }
+    }
+
+    // add air quality sensor for PM10
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'pm10Sensor')) ||
+      this.sensorWishList.pm10Sensor === true) {
+      if (this.sensorList.indexOf('pm10') !== -1) {
+        this.pm10SensorService = this.accessory.getService('PM10') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `PM10 ${this.displayName}`, `PM10 ${this.serialNumber}`);
+        this.pm10SensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getPM10quality.bind(this));
+        this.pm10SensorService.getCharacteristic(this.platform.Characteristic.PM10Density)
+          .onGet(this.getPM10level.bind(this));
+        this.pm10SensorService.getCharacteristic(this
+
+    // add air quality sensor for co
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'coSensor')) ||
+      this.sensorWishList.coSensor === true) {
+      if (this.sensorList.indexOf('co') !== -1) {
+        this.coSensorService = this.accessory.getService('CO') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `CO ${this.displayName}`, `CO ${this.serialNumber}`);
+        this.coSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getCOquality.bind(this));
+        this.coSensorService.getCharacteristic(this.platform.Characteristic.CarbonMonoxideDensity)
+          .onGet(this.getCOlevel.bind(this));
+        this.coSensorService.get
 
     // add air quality sensor for NH3
     if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'nh3Sensor')) ||
@@ -563,6 +629,14 @@ export class AirQPlatformAccessory {
 
   async getSmokeDetectedStatus() {
     return this.sensorStatusActive.pm2_5;
+  }
+
+  async getN2OStatus() {
+    return this.sensorStatusActive.n2o;
+  }
+
+  async getRadonStatus() {
+    return this.sensorStatusActive.radon;
   }
 
   async getSmokeDetected() {
@@ -890,6 +964,66 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
+  async getN2Olevel() {
+    let currentValue = 0;
+    if (this.latestData.n2o === undefined || this.latestData.n2o < 0){
+      currentValue = 0;
+    } else if (this.latestData.n2o/1000 < 1000) {
+      currentValue = this.latestData.n2o/1000;
+    } else {
+      currentValue = 1000;
+    }
+    return currentValue;
+  }
+
+async getN2Oquality() {
+  let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+  if (this.latestData.n2o === undefined){
+    currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+  } else if (this.latestData.n2o/1000 < 10){
+    currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+  } else if (this.latestData.n2o/1000 < 60){
+    currentValue = this.platform.Characteristic.AirQuality.GOOD;
+  } else if (this.latestData.n2o/1000 < 110){
+    currentValue = this.platform.Characteristic.AirQuality.FAIR;
+  } else if (this.latestData.n2o/1000 < 180){
+    currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+  } else {
+    currentValue = this.platform.Characteristic.AirQuality.POOR;
+  }
+  return currentValue;
+}
+
+  async getRadonlevel() {
+    let currentValue = 0;
+    if (this.latestData.radon === undefined || this.latestData.radon < 0){
+      currentValue = 0;
+    } else if (this.latestData.radon < 1000) {
+      currentValue = this.latestData.radon;
+    } else {
+      currentValue = 1000;
+    }
+    return currentValue;
+  }
+
+  async getRadonquality() {
+    let currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    if (this.latestData.radon === undefined){
+      currentValue = this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (this.latestData.radon < 30){
+      currentValue = this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (this.latestData.radon < 50){
+      currentValue = this.platform.Characteristic.AirQuality.GOOD;
+    } else if (this.latestData.radon < 100){
+      currentValue = this.platform.Characteristic.AirQuality.FAIR;
+    } else if (this.latestData.radon < 300){
+      currentValue = this.platform.Characteristic.AirQuality.INFERIOR;
+    } else {
+      currentValue = this.platform.Characteristic.AirQuality.POOR;
+    }
+    return currentValue;
+  }
+
   async getVOClevel() {
     let currentValue = 0;
     if (this.latestData.tvoc === undefined || this.latestData.tvoc < 0){
@@ -983,6 +1117,8 @@ export class AirQPlatformAccessory {
       c3h8_MIPEX: 0.0,
       h2_M1000: 0.0,
       nh3_MR100: 0.0,
+      n2o: 0.0,
+      radon: 0.0,
     };
 
     const status: SensorStatus = {
@@ -1006,6 +1142,8 @@ export class AirQPlatformAccessory {
       c3h8_MIPEX: false,
       h2_M1000: false,
       nh3_MR100: false,
+      n2o: false,
+      radon: false,
     };
 
     try {
