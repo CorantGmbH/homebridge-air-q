@@ -103,6 +103,16 @@
                   "type": "boolean",
                   "default": true
                 },
+                "n2oSensor": {
+                  "title": "N2O",
+                  "type": "boolean",
+                  "default": true
+                },
+                "radonSensor": {
+                  "title": "Radon",
+                  "type": "boolean",
+                  "default": true
+                },
                 "h2Sensor": {
                   "title": "H2 as leak detector",
                   "type": "boolean",
@@ -140,6 +150,11 @@
                 },
                 "airPressure": {
                   "title": "Air pressure disguised as light sensor",
+                  "type": "boolean",
+                  "default": true
+                },
+                "airPressureRel": {
+                  "title": "Relative air pressure disguised as light sensor",
                   "type": "boolean",
                   "default": true
                 },

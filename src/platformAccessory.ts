@@ -15,6 +15,7 @@ interface DataPacket {
   pm2_5?: number;
   pm10?: number;
   pressure?: number;
+  pressure_rel?: number;
   no2?: number;
   o3?: number;
   cl2_M20?: number;
@@ -50,6 +51,7 @@ interface SensorStatus {
   so2: boolean;
   h2s: boolean;
   pressure: boolean;
+  pressure_rel: boolean;
   tvoc: boolean;
   sound: boolean;
   n2o: boolean;
@@ -77,6 +79,7 @@ export class AirQPlatformAccessory {
   private performanceSensorService?: Service;
   private smokeSensorService?: Service;
   private airPressureService?: Service;
+  private airPressureRelService?: Service;
   private noiseSensorService?: Service;
   private n2oSensorService?: Service;
   private radonSensorService?: Service;
@@ -128,6 +131,7 @@ export class AirQPlatformAccessory {
       co: false,
       pm2_5: false,
       pressure: false,
+      pressure_rel: false,
       no2: false,
       o3: false,
       so2: false,
@@ -513,6 +517,20 @@ export class AirQPlatformAccessory {
       }
     }
 
+    // add relative air pressure virtual sensor as light sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'airPressureRel')) ||
+      this.sensorWishList.airPressureRel === true) {
+      if (this.sensorList.indexOf('pressure_rel') !== -1) {
+        this.airPressureRelService = this.accessory.getService('Relative Air Pressure') ||
+          this.accessory.addService(this.platform.Service.LightSensor,
+            `Relative Air Pressure ${this.displayName}`, `Relative Air Pressure ${this.serialNumber}`);
+        this.airPressureRelService.getCharacteristic(this.platform.Characteristic.CurrentAmbientLightLevel)
+          .onGet(this.getAirPressureRel.bind(this));
+        this.airPressureRelService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getPressureRelStatus.bind(this));
+      }
+    }
+
 
     // Start auto-refresh data
     setInterval(() => {
@@ -586,6 +604,10 @@ export class AirQPlatformAccessory {
   }
 
   async getPressureStatus() {
+    return this.sensorStatusActive.pressure;
+  }
+
+  async getPressureRelStatus() {
     return this.sensorStatusActive.pressure;
   }
 
@@ -1061,6 +1083,11 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
+  async getAirPressureRel() {
+    const currentValue = this.latestData.pressure_rel === undefined ? 400 : this.latestData.pressure_rel;
+    return currentValue;
+  }
+
   async getNoiseLevel() {
     const currentValue = this.latestData.sound === undefined ? 13 : this.latestData.sound;
     return currentValue;
@@ -1079,6 +1106,7 @@ export class AirQPlatformAccessory {
       pm2_5: 0.0,
       pm10: 0.0,
       pressure: 0.0,
+      pressure_rel: 0.0,
       no2: 0.0,
       o3: 0.0,
       so2: 0.0,
@@ -1104,6 +1132,7 @@ export class AirQPlatformAccessory {
       co: false,
       pm2_5: false,
       pressure: false,
+      pressure_rel: false,
       no2: false,
       o3: false,
       so2: false,
