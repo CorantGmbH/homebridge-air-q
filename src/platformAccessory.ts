@@ -342,7 +342,7 @@ export class AirQPlatformAccessory {
             `Radon ${this.displayName}`, `Radon ${this.serialNumber}`);
         this.radonSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
           .onGet(this.getRadonquality.bind(this));
-        this.radonSensorService.getCharacteristic(this.platform.Characteristic.RadonDensity)
+        this.radonSensorService.getCharacteristic(this.platform.Characteristic.OzoneDensity)
           .onGet(this.getRadonlevel.bind(this));
         this.radonSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
           .onGet(this.getRadonStatus.bind(this));
