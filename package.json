@@ -36,7 +36,7 @@
     "home automation"
   ],
   "dependencies": {
-    "axios": "^0.27.1",
+    "axios": "^1.3.2",
     "bonjour-hap": "^3.6.3",
     "crypto-js": "^4.1.1"
   },
