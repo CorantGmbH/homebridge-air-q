@@ -22,11 +22,18 @@ It can be found by searching for `air-Q` in the `Plugins` section.
    retrieved device configuration.
 4. Live measured data will be requested every 10 seconds.
 5. Many of air-Q's sensors are not supported by the HomeKit specification. To make
-   them accessible anyways, they are *disguised* as either *air quality sensors*
-   each by its own (health and performance index, Ozone, Hydrogen Sulfide,
-   Sulfur Dioxide, Nitrogen Dioxide, Ammonia, Formaldehyde, Chlorine, VOCs,
-   particulates), smoke detector (again particulates), leak detector (Methane,
-   Propane, Hydrogen), or light detector (Noise Level and Air Pressure).
+   them accessible anyways, they are exposed as:
+   * *temperature sensor*: Temperature, Dew Point
+   * *humidity sensor*: Humidity
+   * *CO₂ sensor*: CO₂
+   * *CO sensor*: CO
+   * *air quality sensor* (each separately): Health index, Performance index,
+     Mold index, Virus index, Ozone, Hydrogen Sulfide, Sulfur Dioxide,
+     Nitrogen Dioxide, Nitrogen Monoxide, Nitrous Oxide, Ammonia, Formaldehyde,
+     Chlorine, VOCs, Industrial VOCs, Particulates (PM2.5 + PM10), Radon
+   * *smoke detector*: Particulates (PM2.5-based threshold)
+   * *leak detector*: Methane, Propane, Hydrogen, R-32, R-454B, R-454C
+   * *light sensor* (disguised): Noise Level, Air Pressure, Relative Air Pressure
 
 
 ## Development and Contribution

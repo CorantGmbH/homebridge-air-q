@@ -30,6 +30,14 @@ interface DataPacket {
   sound?: number;
   n2o?: number;
   radon?: number;
+  dewpt?: number;
+  mold?: number;
+  no_M250?: number;
+  r32?: number;
+  r454b?: number;
+  r454c?: number;
+  tvoc_ionsc?: number;
+  virus?: number;
 }
 
 interface SensorStatus {
@@ -56,6 +64,14 @@ interface SensorStatus {
   sound: boolean;
   n2o: boolean;
   radon: boolean;
+  dewpt: boolean;
+  mold: boolean;
+  no_M250: boolean;
+  r32: boolean;
+  r454b: boolean;
+  r454c: boolean;
+  tvoc_ionsc: boolean;
+  virus: boolean;
 }
 
 export class AirQPlatformAccessory {
@@ -83,6 +99,14 @@ export class AirQPlatformAccessory {
   private noiseSensorService?: Service;
   private n2oSensorService?: Service;
   private radonSensorService?: Service;
+  private dewptSensorService?: Service;
+  private moldSensorService?: Service;
+  private noSensorService?: Service;
+  private r32SensorService?: Service;
+  private r454bSensorService?: Service;
+  private r454cSensorService?: Service;
+  private tvocIonscSensorService?: Service;
+  private virusSensorService?: Service;
   private displayName: string;
   private serialNumber: string;
   private updateInterval: number;
@@ -146,6 +170,14 @@ export class AirQPlatformAccessory {
       nh3_MR100: false,
       n2o: false,
       radon: false,
+      dewpt: false,
+      mold: false,
+      no_M250: false,
+      r32: false,
+      r454b: false,
+      r454c: false,
+      tvoc_ionsc: false,
+      virus: false,
     };
 
     // get initial data packet
@@ -528,6 +560,122 @@ export class AirQPlatformAccessory {
           .onGet(this.getAirPressureRel.bind(this));
         this.airPressureRelService.getCharacteristic(this.platform.Characteristic.StatusActive)
           .onGet(this.getPressureRelStatus.bind(this));
+      }
+    }
+
+    // add dew point sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'dewptSensor')) ||
+      this.sensorWishList.dewptSensor === true) {
+      if (this.sensorList.indexOf('dewpt') !== -1) {
+        this.dewptSensorService = this.accessory.getService('Dew Point') ||
+          this.accessory.addService(this.platform.Service.TemperatureSensor,
+            `Dew Point ${this.displayName}`, `Dew Point ${this.serialNumber}`);
+        this.dewptSensorService.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
+          .onGet(this.getDewPoint.bind(this));
+        this.dewptSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getDewPointStatus.bind(this));
+      }
+    }
+
+    // add R-32 refrigerant sensor as leak detector
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'r32Sensor')) ||
+      this.sensorWishList.r32Sensor === true) {
+      if (this.sensorList.indexOf('r32') !== -1) {
+        this.r32SensorService = this.accessory.getService('R-32') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `R-32 ${this.displayName}`, `R-32 ${this.serialNumber}`);
+        this.r32SensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getR32quality.bind(this));
+        this.r32SensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getR32Status.bind(this));
+      }
+    }
+
+    // add R-454B refrigerant sensor as leak detector
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'r454bSensor')) ||
+      this.sensorWishList.r454bSensor === true) {
+      if (this.sensorList.indexOf('r454b') !== -1) {
+        this.r454bSensorService = this.accessory.getService('R-454B') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `R-454B ${this.displayName}`, `R-454B ${this.serialNumber}`);
+        this.r454bSensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getR454bquality.bind(this));
+        this.r454bSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getR454bStatus.bind(this));
+      }
+    }
+
+    // add R-454C refrigerant sensor as leak detector
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'r454cSensor')) ||
+      this.sensorWishList.r454cSensor === true) {
+      if (this.sensorList.indexOf('r454c') !== -1) {
+        this.r454cSensorService = this.accessory.getService('R-454C') ||
+          this.accessory.addService(this.platform.Service.LeakSensor,
+            `R-454C ${this.displayName}`, `R-454C ${this.serialNumber}`);
+        this.r454cSensorService.getCharacteristic(this.platform.Characteristic.LeakDetected)
+          .onGet(this.getR454cquality.bind(this));
+        this.r454cSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getR454cStatus.bind(this));
+      }
+    }
+
+    // add mold index sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'moldSensor')) ||
+      this.sensorWishList.moldSensor === true) {
+      if (this.sensorList.indexOf('mold') !== -1) {
+        this.moldSensorService = this.accessory.getService('Mold') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Mold ${this.displayName}`, `Mold ${this.serialNumber}`);
+        this.moldSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getMoldquality.bind(this));
+        this.moldSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getMoldStatus.bind(this));
+      }
+    }
+
+    // add nitrogen monoxide sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'noSensor')) ||
+      this.sensorWishList.noSensor === true) {
+      if (this.sensorList.indexOf('no_M250') !== -1) {
+        this.noSensorService = this.accessory.getService('NO') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `NO ${this.displayName}`, `NO ${this.serialNumber}`);
+        this.noSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getNOquality.bind(this));
+        this.noSensorService.getCharacteristic(this.platform.Characteristic.NitrogenDioxideDensity)
+          .onGet(this.getNOlevel.bind(this));
+        this.noSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getNOStatus.bind(this));
+      }
+    }
+
+    // add industrial VOC sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'tvocIonscSensor')) ||
+      this.sensorWishList.tvocIonscSensor === true) {
+      if (this.sensorList.indexOf('tvoc_ionsc') !== -1) {
+        this.tvocIonscSensorService = this.accessory.getService('Industrial VOC') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Industrial VOC ${this.displayName}`, `Industrial VOC ${this.serialNumber}`);
+        this.tvocIonscSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getTvocIonscquality.bind(this));
+        this.tvocIonscSensorService.getCharacteristic(this.platform.Characteristic.VOCDensity)
+          .onGet(this.getTvocIonsclevel.bind(this));
+        this.tvocIonscSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getTvocIonscStatus.bind(this));
+      }
+    }
+
+    // add virus index sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'virusSensor')) ||
+      this.sensorWishList.virusSensor === true) {
+      if (this.sensorList.indexOf('virus') !== -1) {
+        this.virusSensorService = this.accessory.getService('Virus') ||
+          this.accessory.addService(this.platform.Service.AirQualitySensor,
+            `Virus ${this.displayName}`, `Virus ${this.serialNumber}`);
+        this.virusSensorService.getCharacteristic(this.platform.Characteristic.AirQuality)
+          .onGet(this.getVirusquality.bind(this));
+        this.virusSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getVirusStatus.bind(this));
       }
     }
 
@@ -1092,6 +1240,163 @@ export class AirQPlatformAccessory {
     return currentValue;
   }
 
+  // --- Dew point ---
+
+  async getDewPointStatus() {
+    return this.sensorStatusActive.dewpt;
+  }
+
+  async getDewPoint() {
+    return this.latestData.dewpt === undefined ? 0 : this.latestData.dewpt;
+  }
+
+  // --- R-32 refrigerant (leak detector) ---
+  // Threshold: 0.5% matches the existing CH4 threshold (both measured in % LEL)
+
+  async getR32Status() {
+    return this.sensorStatusActive.r32;
+  }
+
+  async getR32quality() {
+    if (this.latestData.r32 === undefined || this.latestData.r32 < 0.5) {
+      return this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    }
+    return this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+  }
+
+  // --- R-454B refrigerant (leak detector) ---
+
+  async getR454bStatus() {
+    return this.sensorStatusActive.r454b;
+  }
+
+  async getR454bquality() {
+    if (this.latestData.r454b === undefined || this.latestData.r454b < 0.5) {
+      return this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    }
+    return this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+  }
+
+  // --- R-454C refrigerant (leak detector) ---
+
+  async getR454cStatus() {
+    return this.sensorStatusActive.r454c;
+  }
+
+  async getR454cquality() {
+    if (this.latestData.r454c === undefined || this.latestData.r454c < 0.5) {
+      return this.platform.Characteristic.LeakDetected.LEAK_NOT_DETECTED;
+    }
+    return this.platform.Characteristic.LeakDetected.LEAK_DETECTED;
+  }
+
+  // --- Mold index (0–100 %) ---
+
+  async getMoldStatus() {
+    return this.sensorStatusActive.mold;
+  }
+
+  async getMoldquality() {
+    const v = this.latestData.mold;
+    if (v === undefined) {
+      return this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (v > 90) {
+      return this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (v > 75) {
+      return this.platform.Characteristic.AirQuality.GOOD;
+    } else if (v > 50) {
+      return this.platform.Characteristic.AirQuality.FAIR;
+    } else if (v > 20) {
+      return this.platform.Characteristic.AirQuality.INFERIOR;
+    }
+    return this.platform.Characteristic.AirQuality.POOR;
+  }
+
+  // --- Nitrogen monoxide (µg/m³) ---
+  // Thresholds aligned with WHO/EU NO2 guidelines (NO converts rapidly to NO2)
+
+  async getNOStatus() {
+    return this.sensorStatusActive.no_M250;
+  }
+
+  async getNOquality() {
+    const v = this.latestData.no_M250;
+    if (v === undefined) {
+      return this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (v < 40) {
+      return this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (v < 100) {
+      return this.platform.Characteristic.AirQuality.GOOD;
+    } else if (v < 200) {
+      return this.platform.Characteristic.AirQuality.FAIR;
+    } else if (v < 400) {
+      return this.platform.Characteristic.AirQuality.INFERIOR;
+    }
+    return this.platform.Characteristic.AirQuality.POOR;
+  }
+
+  async getNOlevel() {
+    const v = this.latestData.no_M250;
+    if (v === undefined || v < 0) {
+      return 0;
+    }
+    return v < 1000 ? v : 1000;
+  }
+
+  // --- Industrial VOC / tvoc_ionsc (ppb) ---
+  // Same thresholds and ppb→µg/m³ conversion as tvoc
+
+  async getTvocIonscStatus() {
+    return this.sensorStatusActive.tvoc_ionsc;
+  }
+
+  async getTvocIonscquality() {
+    const v = this.latestData.tvoc_ionsc;
+    if (v === undefined) {
+      return this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (v < 500) {
+      return this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (v < 1000) {
+      return this.platform.Characteristic.AirQuality.GOOD;
+    } else if (v < 1500) {
+      return this.platform.Characteristic.AirQuality.FAIR;
+    } else if (v < 2500) {
+      return this.platform.Characteristic.AirQuality.INFERIOR;
+    }
+    return this.platform.Characteristic.AirQuality.POOR;
+  }
+
+  async getTvocIonsclevel() {
+    const v = this.latestData.tvoc_ionsc;
+    if (v === undefined || v < 0) {
+      return 0;
+    }
+    const ugm3 = v / 1.88;
+    return ugm3 < 1000 ? ugm3 : 1000;
+  }
+
+  // --- Virus index (0–100 %) ---
+
+  async getVirusStatus() {
+    return this.sensorStatusActive.virus;
+  }
+
+  async getVirusquality() {
+    const v = this.latestData.virus;
+    if (v === undefined) {
+      return this.platform.Characteristic.AirQuality.UNKNOWN;
+    } else if (v > 90) {
+      return this.platform.Characteristic.AirQuality.EXCELLENT;
+    } else if (v > 75) {
+      return this.platform.Characteristic.AirQuality.GOOD;
+    } else if (v > 50) {
+      return this.platform.Characteristic.AirQuality.FAIR;
+    } else if (v > 20) {
+      return this.platform.Characteristic.AirQuality.INFERIOR;
+    }
+    return this.platform.Characteristic.AirQuality.POOR;
+  }
+
   async getSensorData(): Promise<[DataPacket, SensorStatus]> {
     this.platform.log.debug('\tRequesting data from', this.displayName);
     // predefine returned object
@@ -1120,6 +1425,14 @@ export class AirQPlatformAccessory {
       nh3_MR100: 0.0,
       n2o: 0.0,
       radon: 0.0,
+      dewpt: 0.0,
+      mold: 0.0,
+      no_M250: 0.0,
+      r32: 0.0,
+      r454b: 0.0,
+      r454c: 0.0,
+      tvoc_ionsc: 0.0,
+      virus: 0.0,
     };
 
     const status: SensorStatus = {
@@ -1146,6 +1459,14 @@ export class AirQPlatformAccessory {
       nh3_MR100: false,
       n2o: false,
       radon: false,
+      dewpt: false,
+      mold: false,
+      no_M250: false,
+      r32: false,
+      r454b: false,
+      r454c: false,
+      tvoc_ionsc: false,
+      virus: false,
     };
 
     try {
