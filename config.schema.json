@@ -162,6 +162,46 @@
                   "title": "Noise sensor disguised as light sensor",
                   "type": "boolean",
                   "default": true
+                },
+                "dewptSensor": {
+                  "title": "Dew point",
+                  "type": "boolean",
+                  "default": true
+                },
+                "moldSensor": {
+                  "title": "Mold index",
+                  "type": "boolean",
+                  "default": true
+                },
+                "noSensor": {
+                  "title": "NO (nitrogen monoxide)",
+                  "type": "boolean",
+                  "default": true
+                },
+                "r32Sensor": {
+                  "title": "R-32 refrigerant as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "r454bSensor": {
+                  "title": "R-454B refrigerant as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "r454cSensor": {
+                  "title": "R-454C refrigerant as leak detector",
+                  "type": "boolean",
+                  "default": true
+                },
+                "tvocIonscSensor": {
+                  "title": "VOCs (industrial)",
+                  "type": "boolean",
+                  "default": true
+                },
+                "virusSensor": {
+                  "title": "Virus index",
+                  "type": "boolean",
+                  "default": true
                 }
               }
             }
