@@ -608,7 +608,7 @@ export class AirQPlatformAccessory {
   }
 
   async getPressureRelStatus() {
-    return this.sensorStatusActive.pressure;
+    return this.sensorStatusActive.pressure_rel;
   }
 
   async getNoiseStatus() {
@@ -746,7 +746,6 @@ export class AirQPlatformAccessory {
     } else {
       currentValue = 1000;
     }
-    return currentValue;
     return currentValue;
   }
 
