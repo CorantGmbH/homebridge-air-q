@@ -10,6 +10,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
+  private readonly pendingAccessories = new Set<string>();
 
   constructor(
     public readonly log: Logger,
@@ -37,7 +38,7 @@ export class AirQPlatform implements DynamicPlatformPlugin {
   }
 
   discoverDevices() {
-    const browser = (Bonjour() as any).find({ type: 'http' });
+    const browser = (new Bonjour() as any).find({ type: 'http' });
 
     browser.on('up', this.foundAirQ.bind(this));
 
@@ -66,6 +67,13 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       // choose the corresponding device from homebridge plugin configuration
       for (const i in this.config.airqList) {
         if (this.config.airqList[i].serialNumber === shortId) {
+          const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
+
+          if (this.pendingAccessories.has(uuid)) {
+            this.log.debug('Skipping accessory update while setup is already in progress:', name);
+            return;
+          }
+          this.pendingAccessories.add(uuid);
 
           // set password as defined in user configuration
           const password = this.config.airqList[i].password;
@@ -115,7 +123,6 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 // generate a unique id for the accessory this should be generated from
                 // something globally unique, but constant, for example, the device serial
                 // number or MAC address
-                const uuid = this.api.hap.uuid.generate(mdnsService.txt.id);
                 this.log.info('\tUUID:', uuid);
 
                 // see if an accessory with the same uuid has already been registered and restored from
@@ -123,15 +130,17 @@ export class AirQPlatform implements DynamicPlatformPlugin {
                 const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
                 if (existingAccessory) {
-                  // the accessory already exists
-                  // as the bug message "Error: Cannot add a Service with the same UUID '...'
-                  // and subtype '...' as another Service in this Accessory."
-                  // could not be fixed yet, the device is removed from cache and then added again
-                  // as a new device
+                  this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+                  existingAccessory.context.device = device;
 
-                  this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-                  this.log.debug('Removed existing accessory from cache:', existingAccessory.displayName);
+                  for (const service of [...existingAccessory.services]) {
+                    if (service.UUID !== this.Service.AccessoryInformation.UUID) {
+                      existingAccessory.removeService(service);
+                    }
+                  }
 
+                  new AirQPlatformAccessory(this, existingAccessory);
+                  return;
                 }
 
                 // the accessory does not yet exist, so we need to create it
@@ -150,7 +159,11 @@ export class AirQPlatform implements DynamicPlatformPlugin {
 
                 // link the accessory to your platform
                 this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+                this.accessories.push(accessory);
               }
+            })
+            .finally(() => {
+              this.pendingAccessories.delete(uuid);
             })
             .catch(error => {
               this.log.error(error);
