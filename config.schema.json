@@ -203,6 +203,11 @@
                   "title": "Virus index",
                   "type": "boolean",
                   "default": true
+                },
+                "occupancySensor": {
+                  "title": "Occupancy",
+                  "type": "boolean",
+                  "default": true
                 }
               }
             }

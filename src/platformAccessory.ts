@@ -38,6 +38,7 @@ interface DataPacket {
   r454c?: number;
   tvoc_ionsc?: number;
   virus?: number;
+  occupancy?: number;
 }
 
 interface SensorStatus {
@@ -72,6 +73,7 @@ interface SensorStatus {
   r454c: boolean;
   tvoc_ionsc: boolean;
   virus: boolean;
+  occupancy: boolean;
 }
 
 export class AirQPlatformAccessory {
@@ -107,6 +109,7 @@ export class AirQPlatformAccessory {
   private r454cSensorService?: Service;
   private tvocIonscSensorService?: Service;
   private virusSensorService?: Service;
+  private occupancySensorService?: Service;
   private displayName: string;
   private serialNumber: string;
   private updateInterval: number;
@@ -178,6 +181,7 @@ export class AirQPlatformAccessory {
       r454c: false,
       tvoc_ionsc: false,
       virus: false,
+      occupancy: false,
     };
 
     // get initial data packet
@@ -676,6 +680,20 @@ export class AirQPlatformAccessory {
           .onGet(this.getVirusquality.bind(this));
         this.virusSensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
           .onGet(this.getVirusStatus.bind(this));
+      }
+    }
+
+    // add occupancy sensor
+    if (!(Object.prototype.hasOwnProperty.call(this.sensorWishList, 'occupancySensor')) ||
+      this.sensorWishList.occupancySensor === true) {
+      if (this.sensorList.indexOf('occupancy') !== -1) {
+        this.occupancySensorService = this.accessory.getService('Occupancy') ||
+          this.accessory.addService(this.platform.Service.OccupancySensor,
+            `Occupancy ${this.displayName}`, `Occupancy ${this.serialNumber}`);
+        this.occupancySensorService.getCharacteristic(this.platform.Characteristic.OccupancyDetected)
+          .onGet(this.getOccupancyDetected.bind(this));
+        this.occupancySensorService.getCharacteristic(this.platform.Characteristic.StatusActive)
+          .onGet(this.getOccupancyStatus.bind(this));
       }
     }
 
@@ -1397,6 +1415,22 @@ export class AirQPlatformAccessory {
     return this.platform.Characteristic.AirQuality.POOR;
   }
 
+  // --- Occupancy sensor ---
+
+  async getOccupancyStatus() {
+    return this.sensorStatusActive.occupancy;
+  }
+
+  async getOccupancyDetected() {
+    const v = this.latestData.occupancy;
+    // occupancy is reported as an integer count; 0 means no one present (not detected),
+    // any positive value means at least one person is present (detected)
+    if (v === undefined || v === 0) {
+      return this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED;
+    }
+    return this.platform.Characteristic.OccupancyDetected.OCCUPANCY_DETECTED;
+  }
+
   async getSensorData(): Promise<[DataPacket, SensorStatus]> {
     this.platform.log.debug('\tRequesting data from', this.displayName);
     // predefine returned object
@@ -1433,6 +1467,7 @@ export class AirQPlatformAccessory {
       r454c: 0.0,
       tvoc_ionsc: 0.0,
       virus: 0.0,
+      occupancy: 0,
     };
 
     const status: SensorStatus = {
@@ -1467,6 +1502,7 @@ export class AirQPlatformAccessory {
       r454c: false,
       tvoc_ionsc: false,
       virus: false,
+      occupancy: false,
     };
 
     try {
