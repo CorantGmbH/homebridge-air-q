@@ -12,12 +12,21 @@ This plugin was developed to be installed and configured with
 [homebridge-config-ui-x](https://www.npmjs.com/package/homebridge-config-ui-x).
 It can be found by searching for `air-Q` in the `Plugins` section.
 
+## Configuration
+
+Open the plugin settings in [homebridge-config-ui-x](https://www.npmjs.com/package/homebridge-config-ui-x)
+and click **Scan for Devices**. The plugin will discover air-Q devices on your
+local network via mDNS. Select a discovered device and enter its password to add
+it. You can also add devices manually by entering the short serial number
+(first five digits) and password.
+
 ## Working Principle
 
 1. The plugin performs an mDNS scan to find all air-Qs in the connected network.
 2. For each found device which has also been configured with the air-Q short-ID
    (1st five letters of the serial number) and device password (as configured in
     the air-Q mobile phone App), a HTTP network connection will be established.
+   Unconfigured devices are logged with their serial number and IP address.
 3. Each device will be initialized depending on the sensor list found in the
    retrieved device configuration.
 4. Live measured data will be requested every 10 seconds.
