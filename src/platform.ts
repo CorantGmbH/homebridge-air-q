@@ -64,8 +64,10 @@ export class AirQPlatform implements DynamicPlatformPlugin {
       this.log.debug('Found', mdnsService.txt.device, '"'+name+'"; trying to set-up...');
 
       // choose the corresponding device from homebridge plugin configuration
+      let matched = false;
       for (const i in this.config.airqList) {
         if (this.config.airqList[i].serialNumber === shortId) {
+          matched = true;
 
           // set password as defined in user configuration
           const password = this.config.airqList[i].password;
@@ -156,6 +158,13 @@ export class AirQPlatform implements DynamicPlatformPlugin {
               this.log.error(error);
             });
         }
+      }
+
+      if (!matched) {
+        this.log.warn(
+          'Discovered air-Q "%s" (serial: %s) at %s — add serial number "%s" to your config to start monitoring.',
+          name, serial, ip, shortId,
+        );
       }
     }
   }

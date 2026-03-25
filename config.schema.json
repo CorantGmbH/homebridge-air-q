@@ -2,6 +2,7 @@
   "pluginAlias": "AirQPlatform",
   "pluginType": "platform",
   "singular": true,
+  "customUi": true,
   "headerDisplay": "Homebridge plugin for air-Q",
   "footerDisplay": "For a detailed description, see https://github.com/CorantGmbH/homebridge-air-q",
   "schema": {

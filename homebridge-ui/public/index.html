@@ -1,0 +1,352 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<style>
+  .device-card {
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .device-card:hover {
+    border-color: currentColor;
+    opacity: 0.85;
+  }
+  .device-card.selected {
+    border-color: currentColor;
+    background-color: rgba(128, 128, 128, 0.15);
+  }
+  .device-card .device-name {
+    font-weight: 600;
+  }
+  .device-card .device-meta {
+    font-size: 0.85em;
+    opacity: 0.65;
+  }
+  .sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 4px 16px;
+  }
+  .scan-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .section-divider {
+    margin: 24px 0 16px;
+    border-top: 1px solid rgba(128, 128, 128, 0.3);
+    padding-top: 16px;
+  }
+  .configured-badge {
+    font-size: 0.75em;
+    background: #28a745;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+</style>
+
+<div id="app">
+  <!-- Discovery Section -->
+  <div class="mb-4">
+    <h5>Discover air-Q Devices</h5>
+    <p class="text-muted small">Scan your network for air-Q devices via mDNS.</p>
+    <button id="btn-scan" class="btn btn-primary btn-sm" onclick="startDiscovery()">
+      Scan for Devices
+    </button>
+    <span id="scan-status" class="ml-2 small"></span>
+  </div>
+
+  <div id="discovered-devices"></div>
+
+  <div id="no-devices-msg" class="alert alert-info small" style="display:none;">
+    No air-Q devices found on the network. Make sure your devices are powered on and connected to the same network.
+    You can also add a device manually below.
+  </div>
+
+  <!-- Configured Devices -->
+  <div class="section-divider">
+    <h5>Configured Devices</h5>
+  </div>
+  <div id="configured-devices"></div>
+  <button class="btn btn-outline-secondary btn-sm mt-2" onclick="addManualDevice()">
+    + Add device manually
+  </button>
+
+  <!-- Global Settings -->
+  <div class="section-divider">
+    <h5>Settings</h5>
+  </div>
+  <div class="form-group">
+    <label for="updateInterval">Update interval (seconds)</label>
+    <input type="number" class="form-control form-control-sm" id="updateInterval"
+           min="1" value="10" style="max-width: 120px;">
+  </div>
+</div>
+
+<script>
+  // Sensor definitions matching config.schema.json
+  const SENSORS = [
+    { key: 'temperatureSensor', label: 'Temperature' },
+    { key: 'humidtySensor', label: 'Humidity' },
+    { key: 'co2Sensor', label: 'CO2' },
+    { key: 'no2Sensor', label: 'NO2' },
+    { key: 'so2Sensor', label: 'SO2' },
+    { key: 'o3Sensor', label: 'O3' },
+    { key: 'h2sSensor', label: 'H2S' },
+    { key: 'vocSensor', label: 'VOC' },
+    { key: 'coSensor', label: 'CO' },
+    { key: 'ch2oSensor', label: 'CH2O' },
+    { key: 'nh3Sensor', label: 'NH3' },
+    { key: 'cl2Sensor', label: 'Cl2' },
+    { key: 'n2oSensor', label: 'N2O' },
+    { key: 'radonSensor', label: 'Radon' },
+    { key: 'h2Sensor', label: 'H2 leak detector' },
+    { key: 'ch4Sensor', label: 'CH4 leak detector' },
+    { key: 'c3h8Sensor', label: 'C3H8 leak detector' },
+    { key: 'pmSensor', label: 'Particulates' },
+    { key: 'healthSensor', label: 'Health index' },
+    { key: 'performanceSensor', label: 'Performance index' },
+    { key: 'smokeSensor', label: 'Smoke' },
+    { key: 'airPressure', label: 'Air pressure' },
+    { key: 'airPressureRel', label: 'Relative air pressure' },
+    { key: 'noiseSensor', label: 'Noise' },
+    { key: 'dewptSensor', label: 'Dew point' },
+    { key: 'moldSensor', label: 'Mold index' },
+    { key: 'noSensor', label: 'NO' },
+    { key: 'r32Sensor', label: 'R-32 refrigerant' },
+    { key: 'r454bSensor', label: 'R-454B refrigerant' },
+    { key: 'r454cSensor', label: 'R-454C refrigerant' },
+    { key: 'tvocIonscSensor', label: 'VOCs (industrial)' },
+    { key: 'virusSensor', label: 'Virus index' },
+  ];
+
+  let pluginConfig = {};
+  let discoveredDevices = [];
+
+  (async () => {
+    // Load existing config
+    const configs = await homebridge.getPluginConfig();
+    pluginConfig = configs[0] || { name: 'air-Q', airqList: [], updateInterval: 10 };
+    if (!pluginConfig.airqList) pluginConfig.airqList = [];
+    if (!pluginConfig.name) pluginConfig.name = 'air-Q';
+
+    document.getElementById('updateInterval').value = pluginConfig.updateInterval || 10;
+    renderConfiguredDevices();
+
+    // Listen for real-time device discovery
+    homebridge.addEventListener('device-found', (event) => {
+      const device = event.data;
+      if (!discoveredDevices.find(d => d.fullId === device.fullId)) {
+        discoveredDevices.push(device);
+        renderDiscoveredDevices();
+      }
+    });
+  })();
+
+  async function startDiscovery() {
+    const btn = document.getElementById('btn-scan');
+    const status = document.getElementById('scan-status');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="scan-spinner"></span>Scanning\u2026';
+    status.textContent = '';
+    discoveredDevices = [];
+    renderDiscoveredDevices();
+    document.getElementById('no-devices-msg').style.display = 'none';
+
+    try {
+      const devices = await homebridge.request('/discover');
+      discoveredDevices = devices;
+      renderDiscoveredDevices();
+
+      if (devices.length === 0) {
+        document.getElementById('no-devices-msg').style.display = 'block';
+      } else {
+        status.textContent = `Found ${devices.length} device(s)`;
+      }
+    } catch (e) {
+      status.textContent = 'Discovery failed: ' + (e.message || e);
+      homebridge.toast.error('Discovery failed');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Scan for Devices';
+  }
+
+  function isDeviceConfigured(shortId) {
+    return pluginConfig.airqList.some(d => d.serialNumber === shortId);
+  }
+
+  function renderDiscoveredDevices() {
+    const container = document.getElementById('discovered-devices');
+    if (discoveredDevices.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = discoveredDevices.map(d => {
+      const configured = isDeviceConfigured(d.shortId);
+      return `
+        <div class="device-card ${configured ? 'selected' : ''}"
+             ${configured ? '' : `data-add-shortid="${escapeAttr(d.shortId)}"`}>
+          <div class="device-name">
+            ${escapeHtml(d.name)}
+            ${configured ? '<span class="configured-badge">Configured</span>' : ''}
+          </div>
+          <div class="device-meta">
+            Serial: ${escapeHtml(d.shortId)} &middot; IP: ${escapeHtml(d.ip)}
+          </div>
+          ${configured ? '' : '<div class="small text-primary mt-1">Click to add</div>'}
+        </div>
+      `;
+    }).join('');
+
+    // Bind click handlers via event delegation
+    container.querySelectorAll('[data-add-shortid]').forEach(el => {
+      el.addEventListener('click', () => {
+        addDiscoveredDevice(el.dataset.addShortid);
+      });
+    });
+  }
+
+  function addDiscoveredDevice(shortId) {
+    if (isDeviceConfigured(shortId)) return;
+    pluginConfig.airqList.push({
+      serialNumber: shortId,
+      password: '',
+      sensors: getDefaultSensors(),
+    });
+    saveAndRender();
+    // Scroll to the new device's password field
+    setTimeout(() => {
+      const pwField = document.getElementById('pw-' + shortId);
+      if (pwField) {
+        pwField.focus();
+        pwField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
+
+  function addManualDevice() {
+    pluginConfig.airqList.push({
+      serialNumber: '',
+      password: '',
+      sensors: getDefaultSensors(),
+    });
+    saveAndRender();
+  }
+
+  function removeDevice(index) {
+    pluginConfig.airqList.splice(index, 1);
+    saveAndRender();
+  }
+
+  function getDefaultSensors() {
+    const sensors = {};
+    SENSORS.forEach(s => sensors[s.key] = true);
+    return sensors;
+  }
+
+  function renderConfiguredDevices() {
+    const container = document.getElementById('configured-devices');
+
+    if (pluginConfig.airqList.length === 0) {
+      container.innerHTML = '<p class="text-muted small">No devices configured. Scan for devices or add one manually.</p>';
+      return;
+    }
+
+    container.innerHTML = pluginConfig.airqList.map((device, idx) => {
+      const sensors = device.sensors || getDefaultSensors();
+      return `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="mb-0">Device ${idx + 1}</h6>
+              <button class="btn btn-outline-danger btn-sm" onclick="removeDevice(${idx})">Remove</button>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-5">
+                <label class="small">Serial number (first 5 digits)</label>
+                <input type="text" class="form-control form-control-sm" maxlength="5" minlength="5"
+                       value="${escapeAttr(device.serialNumber)}"
+                       placeholder="a1b3d"
+                       onchange="updateDevice(${idx}, 'serialNumber', this.value)">
+              </div>
+              <div class="form-group col-md-5">
+                <label class="small">Password</label>
+                <input type="password" class="form-control form-control-sm" id="pw-${escapeAttr(device.serialNumber)}"
+                       value="${escapeAttr(device.password)}"
+                       placeholder="airqsetup"
+                       onchange="updateDevice(${idx}, 'password', this.value)">
+              </div>
+            </div>
+            <details class="mt-1">
+              <summary class="small text-muted" style="cursor:pointer;">Sensor toggles</summary>
+              <div class="sensor-grid mt-2">
+                ${SENSORS.map(s => `
+                  <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="sensor-${idx}-${s.key}"
+                           ${sensors[s.key] !== false ? 'checked' : ''}
+                           onchange="updateSensor(${idx}, '${s.key}', this.checked)">
+                    <label class="custom-control-label small" for="sensor-${idx}-${s.key}">${s.label}</label>
+                  </div>
+                `).join('')}
+              </div>
+            </details>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updateDevice(index, field, value) {
+    pluginConfig.airqList[index][field] = value;
+    saveConfig();
+    // Re-render discovered devices to update "configured" badges
+    renderDiscoveredDevices();
+  }
+
+  function updateSensor(index, key, value) {
+    if (!pluginConfig.airqList[index].sensors) {
+      pluginConfig.airqList[index].sensors = getDefaultSensors();
+    }
+    pluginConfig.airqList[index].sensors[key] = value;
+    saveConfig();
+  }
+
+  // Listen for updateInterval changes
+  document.getElementById('updateInterval').addEventListener('change', (e) => {
+    pluginConfig.updateInterval = parseInt(e.target.value) || 10;
+    saveConfig();
+  });
+
+  function saveAndRender() {
+    renderConfiguredDevices();
+    renderDiscoveredDevices();
+    saveConfig();
+  }
+
+  async function saveConfig() {
+    await homebridge.updatePluginConfig([pluginConfig]);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function escapeAttr(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
+  }
+</script>
