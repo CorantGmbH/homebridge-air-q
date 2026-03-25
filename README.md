@@ -43,6 +43,7 @@ it. You can also add devices manually by entering the short serial number
    * *smoke detector*: Particulates (PM2.5-based threshold)
    * *leak detector*: Methane, Propane, Hydrogen, R-32, R-454B, R-454C
    * *light sensor* (disguised): Noise Level, Air Pressure, Relative Air Pressure
+   * *occupancy sensor*: Occupancy
 
 
 ## Development and Contribution
